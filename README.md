@@ -65,7 +65,7 @@ Convert video/audio to Vietnamese speech.
 ---
 
 ## Private-TG-Tracker (KPI & KOL Tracking)
-
+<img width="1437" height="673" alt="Screenshot 2026-04-23 at 14 51 02" src="https://github.com/user-attachments/assets/f889721e-462c-400a-88a2-9b0a241b3028" />
 ### 4. Bot Listen
 **File:** `Private-TG-Tracker/Bot Listen.json`
 
@@ -110,6 +110,7 @@ Bot gửi bài KPI cho KOL và tracking khi KOL phản hồi link bài đăng.
 ---
 
 ## TG-MultiHub-Auto (Auto-Post Multi-Language)
+<img width="1440" height="751" alt="Screenshot 2026-04-23 at 14 49 47" src="https://github.com/user-attachments/assets/d17772a6-5e06-49f8-8e6a-bb61abf35e66" />
 
 ### 6. Đăng bài (Auto-Post Multi-Channel)
 **File:** `TG-MultiHub-Auto/Đăng bài.json`
