@@ -1,0 +1,1963 @@
+{
+  "name": "Bot Listen",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message",
+          "edited_message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1472,
+        160
+      ],
+      "id": "8cebd661-5660-4543-95f2-0131e0019139",
+      "name": "Telegram Trigger",
+      "webhookId": "848a25eb-0995-451d-aeff-91c23115d75d",
+      "credentials": {
+        "telegramApi": {
+          "id": "wWdqFKdIS5n1VUUz",
+          "name": "Huyền - KPI Post"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.message.link_preview_options.url ||  $json.message.text.match(/https:\\/\\/\\S+/)[0]}}?embed=1",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -352,
+        -32
+      ],
+      "id": "ef3a9fb7-c156-4a8e-9a74-e7f4ec6c4587",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Lấy mã HTML từ node HTTP Request trước đó\nconst html = items[0].json.data; \n\n// 1. Dùng Regex để tìm giá trị trong thuộc tính datetime của thẻ <time>\n// Định dạng trong HTML thường là: datetime=\"2026-03-18T08:37:43+00:00\"\nconst regex = /datetime=\"([^\"]+)\"/;\nconst match = html.match(regex);\n\nif (match && match[1]) {\n  const isoDate = new Date(match[1]);\n\n  // 2. Chuyển đổi sang múi giờ Việt Nam (GMT+7) và định dạng lại\n  // Bạn có thể tùy chỉnh format ở đây\n  const day = String(isoDate.getDate()).padStart(2, '0');\n  const month = String(isoDate.getMonth() + 1).padStart(2, '0'); // Tháng trong JS chạy từ 0-11\n  const year = isoDate.getFullYear();\n  const hours = String(isoDate.getHours()).padStart(2, '0');\n  const minutes = String(isoDate.getMinutes()).padStart(2, '0');\n\n  return {\n    full_date: `${day}/${month}/${year}`,\n    full_time: `${hours}:${minutes}`,\n    vietnam_format: `${hours}:${minutes} - ${day}/${month}/${year}`\n  };\n}\n\n// Trả về null nếu không tìm thấy ngày\nreturn {\n  error: \"Không tìm thấy ngày đăng trong mã HTML\"\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        -32
+      ],
+      "id": "7c5f1e46-1196-47fe-abe2-f8d7d1dbb488",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "612851c3-a46c-4055-8c24-169a850d39c4",
+              "leftValue": "={{ $json.edited_message.reply_to_message}}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "57c21aca-4cbe-4b81-aa1f-4f0c10d7cbd2",
+              "leftValue": "={{ $json.edited_message.reply_to_message.from.id}}",
+              "rightValue": 8585580396,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -576,
+        -128
+      ],
+      "id": "3cb20ef9-6c47-42cd-b820-d74c0d2165c9",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.edited_message }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "7dd2a038-0938-4939-8b8b-83b9ec652251"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "edited_message"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "51b6aad1-461a-4eca-8b04-1935f70593ce",
+                    "leftValue": "={{ $json.message }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "message"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -800,
+        -32
+      ],
+      "id": "1db6bd88-d8ac-4671-9e49-f816a12b2bf8",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "612851c3-a46c-4055-8c24-169a850d39c4",
+              "leftValue": "={{ $json.message.reply_to_message}}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "57c21aca-4cbe-4b81-aa1f-4f0c10d7cbd2",
+              "leftValue": "={{ $json.message.reply_to_message.from.id}}",
+              "rightValue": 8585580396,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -576,
+        160
+      ],
+      "id": "e9e9325c-0c5a-4fa9-bf3f-3c0e8562ac99",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.reply_to_message.text }}",
+                    "rightValue": "KPI Post",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "587fa980-94a3-47db-883b-fab050b8aefd"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "KPI Post"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "68a77b20-4f7e-4bab-9bbd-3eec6ba635d2",
+                    "leftValue": "={{ $json.message.reply_to_message.text }}",
+                    "rightValue": "Event Salary",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Event Salary"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -1024,
+        256
+      ],
+      "id": "81986ab2-8ab4-45f7-9a0c-fc7b2ee70d14",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.message.link_preview_options.url ||  $json.message.text.match(/https:\\/\\/\\S+/)[0]}}?embed=1",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -352,
+        544
+      ],
+      "id": "07f00c01-594b-42a5-abba-324bc4c1a117",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Lấy mã HTML từ node HTTP Request trước đó\nconst html = items[0].json.data; \n\n// 1. Dùng Regex để tìm giá trị trong thuộc tính datetime của thẻ <time>\n// Định dạng trong HTML thường là: datetime=\"2026-03-18T08:37:43+00:00\"\nconst regex = /datetime=\"([^\"]+)\"/;\nconst match = html.match(regex);\n\nif (match && match[1]) {\n  const isoDate = new Date(match[1]);\n\n  // 2. Chuyển đổi sang múi giờ Việt Nam (GMT+7) và định dạng lại\n  // Bạn có thể tùy chỉnh format ở đây\n  const day = String(isoDate.getDate()).padStart(2, '0');\n  const month = String(isoDate.getMonth() + 1).padStart(2, '0'); // Tháng trong JS chạy từ 0-11\n  const year = isoDate.getFullYear();\n  const hours = String(isoDate.getHours()).padStart(2, '0');\n  const minutes = String(isoDate.getMinutes()).padStart(2, '0');\n\n  return {\n    full_date: `${day}/${month}/${year}`,\n    full_time: `${hours}:${minutes}`,\n    vietnam_format: `${hours}:${minutes} - ${day}/${month}/${year}`\n  };\n}\n\n// Trả về null nếu không tìm thấy ngày\nreturn {\n  error: \"Không tìm thấy ngày đăng trong mã HTML\"\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        544
+      ],
+      "id": "d3297a35-c713-46fd-baf9-37b4028ed242",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "612851c3-a46c-4055-8c24-169a850d39c4",
+              "leftValue": "={{ $json.edited_message.reply_to_message}}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "57c21aca-4cbe-4b81-aa1f-4f0c10d7cbd2",
+              "leftValue": "={{ $json.edited_message.reply_to_message.from.id}}",
+              "rightValue": 8585580396,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -576,
+        352
+      ],
+      "id": "ea51180c-17d0-4b55-90c2-a3e91fc6e148",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.edited_message }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "7dd2a038-0938-4939-8b8b-83b9ec652251"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "edited_message"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "51b6aad1-461a-4eca-8b04-1935f70593ce",
+                    "leftValue": "={{ $json.message }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "message"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -800,
+        544
+      ],
+      "id": "4c294f78-4f19-4b0a-99e2-3ad1d99ac435",
+      "name": "Switch2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "612851c3-a46c-4055-8c24-169a850d39c4",
+              "leftValue": "={{ $json.message.reply_to_message}}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "57c21aca-4cbe-4b81-aa1f-4f0c10d7cbd2",
+              "leftValue": "={{ $json.message.reply_to_message.from.id}}",
+              "rightValue": 8585580396,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -576,
+        640
+      ],
+      "id": "75800cf3-e2ab-4069-be0f-c069a255edbe",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "00657bf3-5c1b-4433-851e-87ec0806a57c",
+              "leftValue": "={{ $json.message.chat.id }}",
+              "rightValue": -1003553338744,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1248,
+        160
+      ],
+      "id": "e58e4423-955e-44e4-9899-442792dace3c",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "jsCode": "const msg = $json.message;\nif (!msg) return [];\n\nlet type = 'other';\nlet Topic = msg.reply_to_message?.forum_topic_created?.name || '';\nlet file_id = null;\nlet caption = '';\nlet entities = [];\n\n// photo\nif (msg.photo?.length) {\n  type = 'photo';\n  file_id = msg.photo[msg.photo.length - 1].file_id;\n  caption = msg.caption || '';\n  entities = msg.caption_entities || [];\n}\n// video\nelse if (msg.video) {\n  type = 'video';\n  file_id = msg.video.file_id;\n  caption = msg.caption || '';\n  entities = msg.caption_entities || [];\n}\n// text\nelse if (msg.text) {\n  type = 'text';\n  caption = msg.text || '';\n  entities = msg.entities || [];\n}\n// document nếu sau này cần\nelse if (msg.document) {\n  type = 'document';\n  file_id = msg.document.file_id;\n  caption = msg.caption || '';\n  entities = msg.caption_entities || [];\n}\n// loại khác thì vẫn lưu, caption rỗng\nelse {\n  type = 'other';\n  caption = '';\n  entities = msg.caption_entities || msg.entities || [];\n}\n\nreturn [{\n  json: {\n    media_group_id: msg.media_group_id || null,\n    message_id: msg.message_id,\n    chat_id: String(msg.chat?.id || ''),\n    type,\n    Topic,\n    file_id,\n    caption,\n    entities: JSON.stringify(entities),\n    date: msg.date,\n  }\n}];"
+      },
+      "id": "999def51-3d81-427d-a375-086561ad201f",
+      "name": "Normalize Message1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1024,
+        -224
+      ]
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "34O2u3hzhUP5Jtqm"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        -224
+      ],
+      "id": "4f3c41d9-d574-40aa-8583-712c3bed07b8",
+      "name": "Insert row1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.larksuite.com/open-apis/auth/v3/tenant_access_token/internal",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "Yes"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "app_id",
+              "value": "cli_a95f76df089edeed"
+            },
+            {
+              "name": "app_secret",
+              "value": "C635hDOCovfCQlTfJy6eUZJs3w2yC1xo"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        96,
+        160
+      ],
+      "id": "92c37478-bdd3-47dd-a4b4-8a6a078af953",
+      "name": "HTTP Request3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.larksuite.com/open-apis/bitable/v1/apps/VFtYwvJsmivhoGkdd7glkd66gYd/tables/tblpOMFz4Tm9l2ks/records/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.tenant_access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"filter\": {\n    \"conjunction\": \"and\",\n    \"conditions\": [\n      {\n        \"field_name\": \"ID GROUP\",\n        \"operator\": \"is\",\n        \"value\": [\n          \"{{ $('Telegram Trigger').item.json.message.chat.id }}\"\n        ]\n      }\n    ]\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        320,
+        160
+      ],
+      "id": "761f620e-b2e7-4679-8f54-8f30a25738f2",
+      "name": "HTTP Request4"
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://open.larksuite.com/open-apis/bitable/v1/apps/VFtYwvJsmivhoGkdd7glkd66gYd/tables/tblpOMFz4Tm9l2ks/records/{{ $('HTTP Request4').item.json.data.items[0].record_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('HTTP Request3').item.json.tenant_access_token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.updateBody.toJsonString() }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        768,
+        160
+      ],
+      "id": "29bf0756-1028-46ef-85ef-1927ad92b1a5",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const msg = $('Telegram Trigger').item.json.message;\nconst replyText = msg.reply_to_message?.text || '';\n\nconst match = replyText.match(/KPI Post\\s*(\\d+)/i);\nif (!match) {\n  throw new Error('Không tìm thấy số KPI trong reply_to_message.text');\n}\n\nconst kpiNumber = match[1];\nconst fieldName = `Apr KPI${kpiNumber}`;\nconst value = msg.link_preview_options?.url || msg.text || 'DONE';\n\nreturn [\n  {\n    json: {\n      fieldName,\n      value,\n      updateBody: {\n        fields: {\n          [fieldName]: value\n        }\n      }\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        544,
+        160
+      ],
+      "id": "d939d7ce-86f6-47da-a3cd-979c32fb9d60",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.larksuite.com/open-apis/auth/v3/tenant_access_token/internal",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "Yes"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "app_id",
+              "value": "cli_a95f76df089edeed"
+            },
+            {
+              "name": "app_secret",
+              "value": "C635hDOCovfCQlTfJy6eUZJs3w2yC1xo"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        96,
+        736
+      ],
+      "id": "d68eaa34-95cd-47cc-8b6a-24e8dc57d177",
+      "name": "HTTP Request5"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.larksuite.com/open-apis/bitable/v1/apps/VFtYwvJsmivhoGkdd7glkd66gYd/tables/tblpOMFz4Tm9l2ks/records/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.tenant_access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"filter\": {\n    \"conjunction\": \"and\",\n    \"conditions\": [\n      {\n        \"field_name\": \"ID GROUP\",\n        \"operator\": \"is\",\n        \"value\": [\n          \"{{ $('Telegram Trigger').item.json.message.chat.id }}\"\n        ]\n      }\n    ]\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        320,
+        736
+      ],
+      "id": "0a9ad6bb-6452-42bd-bf2a-99f2dccf9f45",
+      "name": "HTTP Request6"
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://open.larksuite.com/open-apis/bitable/v1/apps/VFtYwvJsmivhoGkdd7glkd66gYd/tables/tblpOMFz4Tm9l2ks/records/{{ $('HTTP Request6').item.json.data.items[0].record_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('HTTP Request5').item.json.tenant_access_token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.updateBody.toJsonString() }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        768,
+        736
+      ],
+      "id": "9dfee5dd-7749-41b2-8210-68ed4a7ff2b5",
+      "name": "HTTP Request7"
+    },
+    {
+      "parameters": {
+        "jsCode": "const msg = $('Telegram Trigger').item.json.message;\nconst replyText = msg.reply_to_message?.text || '';\n\nconst match = replyText.match(/Event Salary\\s*(\\d+)/i);\nif (!match) {\n  throw new Error('Không tìm thấy số KPI trong reply_to_message.text');\n}\n\nconst kpiNumber = match[1];\nconst fieldName = `Apr EV${kpiNumber}`;\nconst value = msg.link_preview_options?.url || msg.text || 'DONE';\n\nreturn [\n  {\n    json: {\n      fieldName,\n      value,\n      updateBody: {\n        fields: {\n          [fieldName]: value\n        }\n      }\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        544,
+        736
+      ],
+      "id": "b03f4640-55df-42ce-8b2d-5a0958c22e10",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "jsCode": "function parseDateTimeFlexible(str) {\n  let cleanStr = String(str || \"\").trim();\n\n  cleanStr = cleanStr.replace(/private/gi, \"\").trim();\n  cleanStr = cleanStr.replace(/\\s+/g, \" \");\n\n  let timePart = \"\";\n  let datePart = \"\";\n\n  if (cleanStr.includes(\" - \")) {\n    const parts = cleanStr.split(\" - \");\n    if (parts.length !== 2) throw new Error(\"Sai định dạng\");\n    timePart = parts[0].trim();\n    datePart = parts[1].trim();\n  } else {\n    const match = cleanStr.match(/^(\\d{1,2}:\\d{2})\\s+(\\d{1,2}[\\/-]\\d{1,2}[\\/-]\\d{4})$/);\n    if (!match) throw new Error(\"Sai định dạng\");\n    timePart = match[1];\n    datePart = match[2];\n  }\n\n  const [hour, minute] = timePart.split(\":\").map(Number);\n  const [day, monthRaw, year] = datePart.split(/[\\/-]/).map(Number);\n  const month = monthRaw - 1;\n\n  if ([hour, minute, day, month, year].some(v => isNaN(v))) {\n    throw new Error(\"Dữ liệu không hợp lệ\");\n  }\n\n  return new Date(year, month, day, hour, minute);\n}\n\nfunction tinhDuration(partnerTime, bdTime) {\n  if (!partnerTime || !bdTime) return \"\";\n\n  const partnerStr = String(partnerTime).trim();\n  const bdStr = String(bdTime).trim();\n\n  if (partnerStr.toLowerCase().includes(\"private\")) {\n    return \"Private\";\n  }\n\n  try {\n    const datePartner = parseDateTimeFlexible(partnerStr);\n    const dateBD = parseDateTimeFlexible(bdStr);\n\n    const diffInMs = datePartner - dateBD;\n\n    if (isNaN(diffInMs)) return \"Lỗi định dạng\";\n\n    const totalMinutes = diffInMs / (1000 * 60);\n    const totalHours = diffInMs / (1000 * 60 * 60);\n    const totalDays = diffInMs / (1000 * 60 * 60 * 24);\n\n    if (totalMinutes < 0) return \"Sai mốc thời gian\";\n    if (totalMinutes < 60) return \"sau \" + Math.round(totalMinutes) + \" phút\";\n    if (totalHours < 24) return \"sau \" + Math.round(totalHours) + \" tiếng\";\n\n    const roundedDays = Math.round(totalDays * 2) / 2;\n    return \"sau \" + roundedDays.toFixed(1) + \" ngày\";\n  } catch (e) {\n    return \"Lỗi định dạng\";\n  }\n}\n\nreturn items.map(item => {\nconst partnerTime = item.json.vietnam_format\n  || $('Code in JavaScript1').item.json.vietnam_format\n  || (\"Private \" + $now.toFormat(\"HH:mm - dd/MM/yyyy\"));\n\n  const bdUnix = $('Telegram Trigger').first().json.message?.reply_to_message?.date;\n  const bdTime = bdUnix\n    ? DateTime.fromSeconds(bdUnix).toFormat(\"HH:mm - dd/MM/yyyy\")\n    : \"\";\n\n  item.json[\"Partner time\"] = partnerTime;\n  item.json[\"BD time\"] = bdTime;\n  item.json[\"Duration\"] = tinhDuration(partnerTime, bdTime);\n\n  return item;\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -128
+      ],
+      "id": "b24b75ce-4851-4d17-a153-6e97670aa7fd",
+      "name": "Duration"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0",
+          "mode": "list",
+          "cachedResultName": "KPI POST EVENT SALARY AUTO POST & REPORT",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 778044240,
+          "mode": "list",
+          "cachedResultName": "Ref Tổng",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0/edit#gid=778044240"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "ID GROUP",
+              "lookupValue": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        96,
+        -128
+      ],
+      "id": "e51d09e2-538d-4350-a4e5-5980fcdc63d8",
+      "name": "Get refcode+Comuni_name",
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DvK9TCx0cmptLk1L",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1qrI1hddSY9UtscBp5VyQ3m2UUL0bHr8MdsAsy1dbo4c",
+          "mode": "list",
+          "cachedResultName": "Crawl - combine",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qrI1hddSY9UtscBp5VyQ3m2UUL0bHr8MdsAsy1dbo4c/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1359868297,
+          "mode": "list",
+          "cachedResultName": "N8N-sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qrI1hddSY9UtscBp5VyQ3m2UUL0bHr8MdsAsy1dbo4c/edit#gid=1359868297"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "BD",
+              "lookupValue": "={{ $json.BD }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        544,
+        -32
+      ],
+      "id": "d9f82af2-771c-41be-aede-d4e161a33be4",
+      "name": "get ID sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DvK9TCx0cmptLk1L",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0",
+          "mode": "list",
+          "cachedResultName": "KPI POST EVENT SALARY AUTO POST & REPORT",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 748248068,
+          "mode": "list",
+          "cachedResultName": "Result_KPI_Post",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0/edit#gid=748248068"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID GROUP": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+            "MONTH": "={{ $('Telegram Trigger').item.json.message.reply_to_message.date.toDateTime('s').format('MM/yyyy') }}",
+            "TYPE": "={{ $('Telegram Trigger').item.json.message.reply_to_message.text.match(/KPI Post \\d+/i)[0] }}",
+            "POST LINK": "={{ $('Telegram Trigger').item.json.message.link_preview_options.url || $('Telegram Trigger').item.json.message.text.match(/https:\\/\\/\\S+/)[0] }}",
+            "BINGX SEND TIME": "={{ $('Telegram Trigger').item.json.message.reply_to_message.date.toDateTime('s').format('HH:MM - dd/MM/yyyy') }}",
+            "PARTNER POST TIME": "={{ $('Code in JavaScript1').item.json.vietnam_format || (\"Private \" + $now.toFormat('HH:MM dd-MM-yyyy')) }}",
+            "TÊN GROUP CHAT": "={{ $('Telegram Trigger').item.json.message.chat.title }}",
+            "BD": "={{ $json.BD }}",
+            "TÊN CỘNG ĐỒNG": "={{ $json[\"TÊN CỘNG ĐỒNG\"] }}",
+            "DURATION": "={{ $json.Duration }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "BD",
+              "displayName": "BD",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ID GROUP",
+              "displayName": "ID GROUP",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TÊN CỘNG ĐỒNG",
+              "displayName": "TÊN CỘNG ĐỒNG",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "TÊN GROUP CHAT",
+              "displayName": "TÊN GROUP CHAT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "MONTH",
+              "displayName": "MONTH",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TYPE",
+              "displayName": "TYPE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "POST LINK",
+              "displayName": "POST LINK",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PARTNER POST TIME",
+              "displayName": "PARTNER POST TIME",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "BINGX SEND TIME",
+              "displayName": "BINGX SEND TIME",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DURATION",
+              "displayName": "DURATION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        592,
+        -272
+      ],
+      "id": "b311dfdf-f032-441e-b71f-6687325bb44a",
+      "name": "Tổng_kpi",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DvK9TCx0cmptLk1L",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('get ID sheet').item.json.ID_sheet }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1762099285,
+          "mode": "list",
+          "cachedResultName": "KPI POST",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ZAFXlIZhDcr01DtYdJW4lBPLzgf0VZY5XqoN7kZrEGQ/edit#gid=1762099285"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID Group": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+            "Tên cộng đồng": "={{ $('Get refcode+Comuni_name').item.json['TÊN CỘNG ĐỒNG'] }}",
+            "Refcode": "={{ $('Get refcode+Comuni_name').item.json.REFCODE }}",
+            "Date": "={{ $('Telegram Trigger').item.json.message.date.toDateTime('s').format('MMMM') }}",
+            "Link join group làm việc": "={{ $('Get refcode+Comuni_name').item.json['LINK JOIN'] || \" \" }}",
+            "KPI": "={{ $('Telegram Trigger').item.json.message.link_preview_options.url || $('Telegram Trigger').item.json.message.text.match(/https:\\/\\/\\S+/)[0] }}",
+            "Number": "={{ $('Telegram Trigger').item.json.message.reply_to_message.text.match(/KPI Post \\d+/i)[0].replace(\"KPI Post \",\"\") }}",
+            "Duration_KPI": "={{ $('Duration').item.json.Duration }}"
+          },
+          "matchingColumns": [
+            "ID Group"
+          ],
+          "schema": [
+            {
+              "id": "Tên cộng đồng",
+              "displayName": "Tên cộng đồng",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ID Group",
+              "displayName": "ID Group",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Refcode",
+              "displayName": "Refcode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Link join group làm việc",
+              "displayName": "Link join group làm việc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Number",
+              "displayName": "Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "KPI",
+              "displayName": "KPI",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Duration_KPI",
+              "displayName": "Duration_KPI",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "EV",
+              "displayName": "EV",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Duration_EV",
+              "displayName": "Duration_EV",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        768,
+        -32
+      ],
+      "id": "e50c43d6-2e0a-45d1-a83a-b21bb28b7e0f",
+      "name": "con_kpi",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DvK9TCx0cmptLk1L",
+          "name": "Google Sheets account 6"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "function parseDateTimeFlexible(str) {\n  let cleanStr = String(str || \"\").trim();\n\n  cleanStr = cleanStr.replace(/private/gi, \"\").trim();\n  cleanStr = cleanStr.replace(/\\s+/g, \" \");\n\n  let timePart = \"\";\n  let datePart = \"\";\n\n  if (cleanStr.includes(\" - \")) {\n    const parts = cleanStr.split(\" - \");\n    if (parts.length !== 2) throw new Error(\"Sai định dạng\");\n    timePart = parts[0].trim();\n    datePart = parts[1].trim();\n  } else {\n    const match = cleanStr.match(/^(\\d{1,2}:\\d{2})\\s+(\\d{1,2}[\\/-]\\d{1,2}[\\/-]\\d{4})$/);\n    if (!match) throw new Error(\"Sai định dạng\");\n    timePart = match[1];\n    datePart = match[2];\n  }\n\n  const [hour, minute] = timePart.split(\":\").map(Number);\n  const [day, monthRaw, year] = datePart.split(/[\\/-]/).map(Number);\n  const month = monthRaw - 1;\n\n  if ([hour, minute, day, month, year].some(v => isNaN(v))) {\n    throw new Error(\"Dữ liệu không hợp lệ\");\n  }\n\n  return new Date(year, month, day, hour, minute);\n}\n\nfunction tinhDuration(partnerTime, bdTime) {\n  if (!partnerTime || !bdTime) return \"\";\n\n  const partnerStr = String(partnerTime).trim();\n  const bdStr = String(bdTime).trim();\n\n  if (partnerStr.toLowerCase().includes(\"private\")) {\n    return \"Private\";\n  }\n\n  try {\n    const datePartner = parseDateTimeFlexible(partnerStr);\n    const dateBD = parseDateTimeFlexible(bdStr);\n\n    const diffInMs = datePartner - dateBD;\n\n    if (isNaN(diffInMs)) return \"Lỗi định dạng\";\n\n    const totalMinutes = diffInMs / (1000 * 60);\n    const totalHours = diffInMs / (1000 * 60 * 60);\n    const totalDays = diffInMs / (1000 * 60 * 60 * 24);\n\n    if (totalMinutes < 0) return \"Sai mốc thời gian\";\n    if (totalMinutes < 60) return \"sau \" + Math.round(totalMinutes) + \" phút\";\n    if (totalHours < 24) return \"sau \" + Math.round(totalHours) + \" tiếng\";\n\n    const roundedDays = Math.round(totalDays * 2) / 2;\n    return \"sau \" + roundedDays.toFixed(1) + \" ngày\";\n  } catch (e) {\n    return \"Lỗi định dạng\";\n  }\n}\n\nreturn items.map(item => {\nconst partnerTime = item.json.vietnam_format\n  || $('Code in JavaScript').item.json.vietnam_format\n  || (\"Private \" + $now.toFormat(\"HH:mm - dd/MM/yyyy\"));\n\n  const bdUnix = $('Telegram Trigger').first().json.message?.reply_to_message?.date;\n  const bdTime = bdUnix\n    ? DateTime.fromSeconds(bdUnix).toFormat(\"HH:mm - dd/MM/yyyy\")\n    : \"\";\n\n  item.json[\"Partner time\"] = partnerTime;\n  item.json[\"BD time\"] = bdTime;\n  item.json[\"Duration\"] = tinhDuration(partnerTime, bdTime);\n\n  return item;\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        448
+      ],
+      "id": "8b84cce9-3de4-4a4f-9647-51186d433e08",
+      "name": "Duration1"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0",
+          "mode": "list",
+          "cachedResultName": "KPI POST EVENT SALARY AUTO POST & REPORT",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 778044240,
+          "mode": "list",
+          "cachedResultName": "Ref Tổng",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0/edit#gid=778044240"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "ID GROUP",
+              "lookupValue": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        96,
+        448
+      ],
+      "id": "5ddbfcfd-8cd8-401d-8555-481100db730e",
+      "name": "Get refcode+Comuni_name1",
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DvK9TCx0cmptLk1L",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1qrI1hddSY9UtscBp5VyQ3m2UUL0bHr8MdsAsy1dbo4c",
+          "mode": "list",
+          "cachedResultName": "Crawl - combine",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qrI1hddSY9UtscBp5VyQ3m2UUL0bHr8MdsAsy1dbo4c/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1359868297,
+          "mode": "list",
+          "cachedResultName": "N8N-sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qrI1hddSY9UtscBp5VyQ3m2UUL0bHr8MdsAsy1dbo4c/edit#gid=1359868297"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "BD",
+              "lookupValue": "={{ $json.BD }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        544,
+        544
+      ],
+      "id": "0c5d7c49-46ca-4c73-ad62-00c5460870b6",
+      "name": "get ID sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DvK9TCx0cmptLk1L",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0",
+          "mode": "list",
+          "cachedResultName": "KPI POST EVENT SALARY AUTO POST & REPORT",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 67584705,
+          "mode": "list",
+          "cachedResultName": "Result_Event_Salary",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0/edit#gid=67584705"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID GROUP": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+            "MONTH": "={{ $('Telegram Trigger').item.json.message.reply_to_message.date.toDateTime('s').format('MM/yyyy') }}",
+            "TYPE": "={{ $('Telegram Trigger').item.json.message.reply_to_message.text.match(/Event Salary \\d+/i)[0] }}",
+            "POST LINK": "={{ $('Telegram Trigger').item.json.message.link_preview_options.url || $('Telegram Trigger').item.json.message.text.match(/https:\\/\\/\\S+/)[0] }}",
+            "BINGX SEND TIME": "={{ $('Telegram Trigger').item.json.message.reply_to_message.date.toDateTime('s').format('HH:MM - dd/MM/yyyy') }}",
+            "PARTNER POST TIME": "={{ $('Code in JavaScript').item.json.vietnam_format || (\"Private \" + $now.toFormat('HH:MM dd-MM-yyyy')) }}",
+            "TÊN GROUP CHAT": "={{ $('Telegram Trigger').item.json.message.chat.title }}",
+            "BD": "={{ $json.BD }}",
+            "TÊN CỘNG ĐỒNG": "={{ $json[\"TÊN CỘNG ĐỒNG\"] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "BD",
+              "displayName": "BD",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ID GROUP",
+              "displayName": "ID GROUP",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TÊN CỘNG ĐỒNG",
+              "displayName": "TÊN CỘNG ĐỒNG",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "TÊN GROUP CHAT",
+              "displayName": "TÊN GROUP CHAT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "MONTH",
+              "displayName": "MONTH",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TYPE",
+              "displayName": "TYPE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "POST LINK",
+              "displayName": "POST LINK",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PARTNER POST TIME",
+              "displayName": "PARTNER POST TIME",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "BINGX SEND TIME",
+              "displayName": "BINGX SEND TIME",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DURATION",
+              "displayName": "DURATION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        544,
+        352
+      ],
+      "id": "d230a35c-3ab8-4ca4-b8b7-12f10b3f7533",
+      "name": "Tổng_kpi1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DvK9TCx0cmptLk1L",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('get ID sheet').item.json.ID_sheet }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1762099285,
+          "mode": "list",
+          "cachedResultName": "KPI POST",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ZAFXlIZhDcr01DtYdJW4lBPLzgf0VZY5XqoN7kZrEGQ/edit#gid=1762099285"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID Group": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+            "Tên cộng đồng": "={{ $('Get refcode+Comuni_name').item.json['TÊN CỘNG ĐỒNG'] }}",
+            "Refcode": "={{ $('Get refcode+Comuni_name').item.json.REFCODE }}",
+            "Date": "={{ $('Telegram Trigger').item.json.message.date.toDateTime('s').format('MMMM') }}",
+            "Link join group làm việc": "={{ $('Get refcode+Comuni_name').item.json['LINK JOIN'] || \" \" }}",
+            "KPI": "={{ $('Telegram Trigger').item.json.message.link_preview_options.url || $('Telegram Trigger').item.json.message.text.match(/https:\\/\\/\\S+/)[0] }}",
+            "Number": "={{ $('Telegram Trigger').item.json.message.reply_to_message.text.match(/Event Salary \\d+/i)[0].replace(\"Event Salary \",\"\") }}",
+            "Duration_KPI": "={{ $('Duration').item.json.Duration }}"
+          },
+          "matchingColumns": [
+            "ID Group"
+          ],
+          "schema": [
+            {
+              "id": "Tên cộng đồng",
+              "displayName": "Tên cộng đồng",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ID Group",
+              "displayName": "ID Group",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Refcode",
+              "displayName": "Refcode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Link join group làm việc",
+              "displayName": "Link join group làm việc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Number",
+              "displayName": "Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "KPI",
+              "displayName": "KPI",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Duration_KPI",
+              "displayName": "Duration_KPI",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "EV",
+              "displayName": "EV",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Duration_EV",
+              "displayName": "Duration_EV",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        752,
+        544
+      ],
+      "id": "0314318b-1ef2-456f-a466-d467b3d5f382",
+      "name": "con_kpi1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DvK9TCx0cmptLk1L",
+          "name": "Google Sheets account 6"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {
+    "Telegram Trigger": [
+      {
+        "json": {
+          "update_id": 631374447,
+          "message": {
+            "message_id": 2195,
+            "from": {
+              "id": 538002952,
+              "is_bot": false,
+              "first_name": "So",
+              "last_name": "Sa",
+              "username": "sosa_saso"
+            },
+            "chat": {
+              "id": -1002136330011,
+              "title": "BingX x Scalping BTC",
+              "type": "supergroup"
+            },
+            "date": 1776316416,
+            "message_thread_id": 2194,
+            "reply_to_message": {
+              "message_id": 2194,
+              "from": {
+                "id": 8585580396,
+                "is_bot": true,
+                "first_name": "BingX Auto Bot",
+                "username": "bingxkpipost_bot"
+              },
+              "chat": {
+                "id": -1002136330011,
+                "title": "BingX x Scalping BTC",
+                "type": "supergroup"
+              },
+              "date": 1776252978,
+              "text": "Thân chào anh/chị Admin! Mình là Bot hỗ trợ gửi bài KPI Post 5. Nội dung bài đăng ở trên đã chèn sẵn link mời của team. Admin vui lòng đăng bài trong vòng 72 giờ và phản hồi lại link bài đăng (reply tin nhắn này) để hệ thống tự động ghi nhận nhé. Cảm ơn Admin đã hỗ trợ!"
+            },
+            "text": "https://t.me/tradebotbtc/1456",
+            "entities": [
+              {
+                "offset": 0,
+                "length": 29,
+                "type": "url"
+              }
+            ],
+            "link_preview_options": {
+              "url": "https://t.me/tradebotbtc/1456"
+            }
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Get refcode+Comuni_name",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Switch2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch2": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get refcode+Comuni_name1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "Normalize Message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Message1": {
+      "main": [
+        [
+          {
+            "node": "Insert row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request5": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request6": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Duration": {
+      "main": [
+        [
+          {
+            "node": "get ID sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Tổng_kpi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get refcode+Comuni_name": {
+      "main": [
+        [
+          {
+            "node": "Duration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get ID sheet": {
+      "main": [
+        [
+          {
+            "node": "con_kpi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tổng_kpi": {
+      "main": [
+        []
+      ]
+    },
+    "Duration1": {
+      "main": [
+        [
+          {
+            "node": "Tổng_kpi1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "get ID sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get refcode+Comuni_name1": {
+      "main": [
+        [
+          {
+            "node": "Duration1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get ID sheet1": {
+      "main": [
+        [
+          {
+            "node": "con_kpi1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8af940e7-0c8f-421d-afe7-e8ccf518afca",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f5fb4061ed08960c69361f3ac140c4b4a1277c94431dab6c42e4e1cf6a2153b5"
+  },
+  "id": "ay8QqZu7VT8MRpsS",
+  "tags": []
+}

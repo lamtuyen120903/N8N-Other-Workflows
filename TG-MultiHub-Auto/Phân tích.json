@@ -1,0 +1,580 @@
+{
+  "name": "Phân tích",
+  "nodes": [
+    {
+      "parameters": {
+        "text": "={{ $json.Content }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "tp_status",
+              "description": "=Extract the CURRENT trade outcome status.\n\nReturn ONLY one of the following values:\n- TPxx        (e.g. TP1, TP2, TP7)\n- SL\n- BREAKEVEN\n- null\n\nRules:\n- Return SL if the text contains an explicit loss indication such as:\n  - \"SL\"\n  - \"Stop loss\"\n  - \"Stopped out\"\n  - A negative R:R value (e.g. \"-1R\", \"-4R\") clearly associated with the trade\n- SL does NOT require verbs like \"hit\" or \"stopped\" if SL or a negative R:R is explicitly stated.\n- Return TPx only if a take-profit level is confirmed or reasonably inferred.\n- Return BREAKEVEN if stop-loss is moved to breakeven (e.g. \"SL to BE\").\n- Ignore target price lists, entry details, leverage, and risk management text.\n- If multiple outcomes appear, prioritize in order: SL > BREAKEVEN > TPx.\n- If no outcome can be inferred, return \"NO\".",
+              "required": true
+            },
+            {
+              "name": "rr_value",
+              "description": "=Extract the Risk-to-Reward (R:R) value related to the CURRENT trade outcome.\n\nReturn the value ONLY in one of the following formats:\n- +xR\n- -xR\n\nWhere x can be an integer or decimal number.\n\nRules:\n- Positive R:R (+xR) is valid ONLY if it is associated with a CONFIRMED or INFERRED TP hit.\n- Negative R:R (-xR) is valid if it is associated with a CONFIRMED or INFERRED stop-loss or loss event.\n- If TP and R:R appear together in an ambiguous or messy format (e.g. \"TP73+4R\"), extract the R:R value and allow later inference.\n- Ignore R:R values that clearly belong to entry, leverage, or tar\n- If no outcome can be inferred, return \"NO\"",
+              "required": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        160
+      ],
+      "id": "0e857330-93cf-4871-ab89-a12d8306af6c",
+      "name": "Information Extractor1"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "={{ JSON.stringify($json.trades) }}"
+            },
+            {
+              "role": "system",
+              "content": "=You are a trading result analysis engine.\n\nInput is a JSON array of rows with:\n- ma_lenh (base trade id, string)\n- tp_loss (TP1, TP2, TP3, ... or Loss)\n- rr (numeric R value, positive or negative)\n\nRules:\n1. Analyze rows grouped by ma_lenh independently.\n2. If ANY row of a ma_lenh is a Loss OR rr < 0:\n   - Select the rr from the Loss row.\n   - Set tp_hit = \"Loss\".\n   - reason = \"loss\".\n3. If there is NO Loss:\n   - Select the row with the HIGHEST rr among TP rows.\n   - Set tp_hit to the corresponding TP label (e.g. TP1, TP2, TP3).\n   - reason = \"max_tp\".\n4. Do NOT average rr.\n5. Do NOT sum rr.\n6. Output EXACTLY one record per ma_lenh.\n7. Output JSON ONLY. No explanation text.\n\nOutput format:\n[\n  {\n    \"ID_Post\": \"<string>\",\n    \"final_rr\": <number>,\n    \"tp_hit\": \"<TPx | Loss>\",\n    \"reason\": \"loss\" | \"max_tp\"\n  }\n]\n"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        1232,
+        48
+      ],
+      "id": "d38e0fdd-5a3a-4248-86f0-19d3586e960b",
+      "name": "Message a model",
+      "executeOnce": true,
+      "credentials": {
+        "openAiApi": {
+          "id": "ws48KIjpDIlDEZwz",
+          "name": "OpenAi BingX 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Lấy text AI trả về\nconst text = $json.output[0].content[0].text;\n\n// Parse JSON string\nconst data = JSON.parse(text);\n\n// Convert thành n8n items\nreturn data.map(row => ({\n  json: {\n    \"ID_Post\": Number(row.ID_Post),\n    \"R:R\": row.final_rr + \"R\",\n    \"Reason\": row.reason,\n    \"TP\" : row.tp_hit\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1616,
+        48
+      ],
+      "id": "7e8592b2-ca38-4a61-8548-1d786fbe0e30",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "ID_Post",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1824,
+        144
+      ],
+      "id": "ddf6a8ce-0bb7-41fb-87fd-5a737eed65fa",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = items\n  .map(i => i.json)\n  .filter(r =>\n    r[\"TP/Loss\"] !== \"NO\" &&\n    r[\"R:R\"] !== \"NO\"\n  )\n  .map(r => {\n    const rawID_Post = String(r[\"ID_Post\"]); // 👈 ép về string\n\n    return {\n      ID_Post: rawID_Post.replace(\"_Result\", \"\"), // luôn là string\n      tp_loss: r[\"TP/Loss\"],\n      rr: Number(String(r[\"R:R\"]).replace(\"R\", \"\"))\n    };\n  });\n\nreturn [\n  {\n    json: {\n      trades: rows\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1024,
+        48
+      ],
+      "id": "77a33a6b-b9fb-41ac-a151-e5b0e8fd26c3",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "content": "## Luồng chạy\n## Nhận thông tin từ sheet ➔ AI đưa ra TP/SL và RR ➔ Update vào sheet channel chính ➔ AI phân tích TP/SL RR ➔ Update kết quả vào Sheet Tổng hợp\n",
+        "height": 608,
+        "width": 2320,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -208
+      ],
+      "id": "b5d4fc5b-c17a-49ad-9099-234b8fbb2127",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Đưa ra TP/SL và RR trong tin nhắn\n",
+        "height": 272,
+        "width": 246
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        208,
+        32
+      ],
+      "id": "73a36d8d-a2f8-4e89-8f23-6b31b2b9d6c9",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Phân tích TP/SL và RR\ntrong sheet tổng hợp",
+        "height": 272,
+        "width": 246
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        -64
+      ],
+      "id": "9d0ea664-261c-46f9-aa42-277fdc375f4f",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 20
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -592,
+        160
+      ],
+      "id": "dcb9061d-67eb-408e-aa10-240f8dea406c",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.0-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.0-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=[{\"ma_lenh\":\"235\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"232\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"90\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"242\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"247\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"248\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"248\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"90\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"80\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"251\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"252\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"253\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"253\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"256\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"257\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"258\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"257\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"262\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"257\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"264\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"258\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"267\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"264\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"94\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"276\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"441\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"278\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"442\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"280\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"281\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"443\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"442\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"441\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"443\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"293\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"294\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"295\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"443\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"443\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"304\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"305\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"306\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"307\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"308\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"309\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"310\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"455\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"312\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"319\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"310\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"322\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"456\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"457\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"323\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"457\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"328\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"329\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"330\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"333\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"337\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"338\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"459\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"338\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"342\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"337\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"344\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"345\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"346\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"347\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"347\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"351\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"351\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"459\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"353\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"358\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"347\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"360\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"95\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"361\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"461\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"361\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"95\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"461\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"347\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"367\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"368\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"369\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"370\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"371\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"372\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"373\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"374\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"375\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"374\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"377\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"464\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"465\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"466\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"378\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"381\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"378\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"466\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"383\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"374\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"381\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"386\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"388\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"388\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"390\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"377\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"388\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"394\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"464\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"397\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"394\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"402\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"406\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"409\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"409\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"409\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"414\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"415\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"416\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"417\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"471\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"472\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"418\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"419\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"421\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"422\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"424\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"475\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"428\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"429\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"437\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"478\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"443\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"445\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"446\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"447\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"448\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"454\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"458\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"462\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"482\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"463\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"437\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"465\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"466\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"461\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"458\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"470\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"458\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"471\",\"tp_loss\":\"\",\"rr\":0},{\"ma_lenh\":\"472\",\"tp_loss\":\"TP1\",\"rr\":1},{\"ma_lenh\":\"536\",\"tp_loss\":\"SL\",\"rr\":-0.5},{\"ma_lenh\":\"487\",\"tp_loss\":\"TP1\",\"rr\":1},{\"ma_lenh\":\"546\",\"tp_loss\":\"\",\"rr\":0}]"
+            },
+            {
+              "content": "=You are a trading result analysis engine.\n\nInput is a JSON array of rows with:\n- ma_lenh (base trade id, string)\n- tp_loss (TP1, TP2, TP3, ... or Loss)\n- rr (numeric R value, positive or negative)\n\nRules:\n1. Analyze rows grouped by ma_lenh independently.\n2. If ANY row of a ma_lenh is a Loss OR rr < 0:\n   - Select the rr from the Loss row.\n   - Set tp_hit = \"Loss\".\n   - reason = \"loss\".\n3. If there is NO Loss:\n   - Select the row with the HIGHEST rr among TP rows.\n   - Set tp_hit to the corresponding TP label (e.g. TP1, TP2, TP3).\n   - reason = \"max_tp\".\n4. Do NOT average rr.\n5. Do NOT sum rr.\n6. Output EXACTLY one record per ma_lenh.\n7. Output JSON ONLY. No explanation text.\n\nOutput format:\n[\n  {\n    \"ma_lenh\": \"<string>\",\n    \"final_rr\": <number>,\n    \"tp_hit\": \"<TPx | Loss>\",\n    \"reason\": \"loss\" | \"max_tp\"\n  }\n]\n",
+              "role": "model"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        1312,
+        -448
+      ],
+      "id": "b4d99818-4e61-4bc5-bc4f-64cfb2e4cf00",
+      "name": "Message a model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "hLaCmEpDi18aodgc",
+          "name": "Google Gemini(PaLM) BingX"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "Channel_main",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "Content",
+              "condition": "neq",
+              "keyValue": "null"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        160
+      ],
+      "id": "7775921c-a7ee-45c9-b841-a6a98eb390d3",
+      "name": "Get many rows",
+      "credentials": {
+        "supabaseApi": {
+          "id": "p9w14KlrS3dXAE91",
+          "name": "Supabase Post"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        64,
+        160
+      ],
+      "id": "429479fd-9276-4e14-a566-2edcda79a246",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "95e944e5-d0cc-4263-877e-c3df5c2c26bb",
+              "leftValue": "={{ $json['TP/Loss'] }}",
+              "rightValue": "NO",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -160,
+        160
+      ],
+      "id": "d0747ba6-59cf-4b0b-aec9-6535d3d4fb85",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "Channel_main",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ID_Post",
+              "condition": "eq",
+              "keyValue": "={{ $('Limit').item.json.ID_Post }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "TP/Loss",
+              "fieldValue": "={{ $json.output.tp_status }}"
+            },
+            {
+              "fieldId": "R:R",
+              "fieldValue": "={{ $json.output.rr_value }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        576,
+        160
+      ],
+      "id": "774fae89-ec6c-4352-beb9-f3f196df22e8",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "p9w14KlrS3dXAE91",
+          "name": "Supabase Post"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "Channel_main",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        784,
+        160
+      ],
+      "id": "476df0a5-2a6b-4953-a817-10ce521e0db2",
+      "name": "Get many rows1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "p9w14KlrS3dXAE91",
+          "name": "Supabase Post"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "Summary",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "Channel",
+              "fieldValue": "={{ $json.Channel }}"
+            },
+            {
+              "fieldId": "ID_Post",
+              "fieldValue": "={{ $json[\"ID_Post\"] }}"
+            },
+            {
+              "fieldId": "Result",
+              "fieldValue": "={{ $json.TP }}"
+            },
+            {
+              "fieldId": "R:R",
+              "fieldValue": "={{ $json.R }}"
+            },
+            {
+              "fieldId": "Content",
+              "fieldValue": "={{ $json[\"Bài đăng\"] }}"
+            },
+            {
+              "fieldId": "Photo",
+              "fieldValue": "={{ $json[\"Hình ảnh\"] }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2032,
+        144
+      ],
+      "id": "0d0a8a0b-ee9d-4af3-8dff-3eac19a117e7",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "p9w14KlrS3dXAE91",
+          "name": "Supabase Post"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        160,
+        368
+      ],
+      "id": "8177eb09-e0b7-4d69-9d70-75ff491cebdf",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ws48KIjpDIlDEZwz",
+          "name": "OpenAi BingX 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Information Extractor1": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        []
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row": {
+      "main": [
+        [
+          {
+            "node": "Get many rows1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "659923b2-3e51-47e2-8444-d86cd1324a88",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f5fb4061ed08960c69361f3ac140c4b4a1277c94431dab6c42e4e1cf6a2153b5"
+  },
+  "id": "kp9CmhOZZKmcE3xd",
+  "tags": []
+}

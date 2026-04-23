@@ -1,0 +1,1725 @@
+{
+  "name": "Đăng bài",
+  "nodes": [
+    {
+      "parameters": {
+        "text": "={{ $('Limit').all()\n  .map(item => item.json.caption)\n  .filter(caption => caption)\n  .join('') }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "Russian",
+              "description": "=Russian",
+              "required": true
+            },
+            {
+              "name": "Chinese",
+              "description": "=Simplified Chinese",
+              "required": true
+            },
+            {
+              "name": "Indonesian",
+              "description": "=Indonesian",
+              "required": true
+            },
+            {
+              "name": "Vietnamese",
+              "description": "=Vietnamese",
+              "required": true
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "You are a professional multilingual translation tool specializing in finance and cryptocurrency.\n\nTask:\nTranslate the input text into:\n\nRussian\nSimplified Chinese\nIndonesian\nVietnamese\n\nRequirements (IMPORTANT):\n\nKeep translations concise and natural, suitable for Telegram messages (avoid unnecessary length).\nUse accurate financial and crypto terminology.\nMaintain clarity and readability, no verbose or redundant phrasing.\n\nSTRICT Terminology Rules (MUST FOLLOW):\n\nDo NOT translate or modify these terms under any circumstances:\nLeverage, TP, SL, Entry, Risk, Long, Short, take profit, stop loss\nDo NOT translate:\nWords in ALL CAPS (e.g., USD, ROI, ATH, CPI, ETF)\nCryptocurrency names or trading pairs (e.g., BTC/USDT, ETH, Bitcoin)\nTimeframes (e.g., M1, M5, H1, D1)\n\nOutput Format:\n\nProvide translations only, no explanations.\nKeep each language clean and compact."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        -4992,
+        -48
+      ],
+      "id": "91984f65-3987-4d53-b92d-1182499a2470",
+      "name": "Information Extractor1",
+      "retryOnFail": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "fb4173ff-d645-4c8b-b613-88af5136b1e6",
+              "leftValue": "={{ $('Limit').all().some(item => item.json.reply_id != null && item.json.reply_id !== '') }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -4416,
+        -48
+      ],
+      "id": "7e06eecf-2078-4806-a6b0-d7dfeb2eb5dc",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -4192,
+        -288
+      ],
+      "id": "c385b595-4d66-4ca0-9872-bb9b0c8b1693",
+      "name": "Loop Over Items2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -4192,
+        208
+      ],
+      "id": "069495bc-9fbd-4f10-8413-8e8380f5c1ad",
+      "name": "Loop Over Items4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8debf7d1-09a1-4014-b4e2-053f5396ed90",
+              "leftValue": "={{ $('Telegram Trigger1').item.json.channel_post.chat.id.toString() }}",
+              "rightValue": "={{ $json.Channel.replace(\"@\",\"\") }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -5952,
+        -400
+      ],
+      "id": "b32d85c1-5d0b-4adc-b7f2-6b2747f2d9fc",
+      "name": "If5"
+    },
+    {
+      "parameters": {
+        "content": "## Dịch\n",
+        "height": 256,
+        "width": 246
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -5008,
+        -144
+      ],
+      "id": "51995212-1d43-48c5-9c35-e86b4625faff",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "## Phân loại \nReply - True\nNo reply - False\n",
+        "height": 256,
+        "width": 166,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -4448,
+        -144
+      ],
+      "id": "83e1df6f-ae59-4913-8413-670dea8ee790",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "content": "## Phân loại trong sheet n8n-sheet\nTrạng thái: Nghe signal\n",
+        "height": 256,
+        "width": 246,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -6256,
+        -496
+      ],
+      "id": "63592379-df52-4e29-b3c1-2db95456db9b",
+      "name": "Sticky Note12"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -4928,
+        192
+      ],
+      "id": "2ddd9653-25d9-4458-8849-0b670f8e284e",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "hLaCmEpDi18aodgc",
+          "name": "Google Gemini(PaLM) BingX"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "N8N_sheet"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -6176,
+        -400
+      ],
+      "id": "3f11ea58-f509-43f5-9de3-9273dc0cdae6",
+      "name": "Get many rows",
+      "credentials": {
+        "supabaseApi": {
+          "id": "p9w14KlrS3dXAE91",
+          "name": "Supabase Post"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "Post",
+        "dataToSend": "autoMapInputData"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -5504,
+        -400
+      ],
+      "id": "958d3d8b-1e46-45f6-bdad-a7182beba520",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "p9w14KlrS3dXAE91",
+          "name": "Supabase Post"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "channel_post"
+        ],
+        "additionalFields": {
+          "download": true
+        }
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -6400,
+        -400
+      ],
+      "id": "480ba629-054a-42b1-b17c-f41a5e029c7c",
+      "name": "Telegram Trigger1",
+      "webhookId": "1e9584a4-32d8-4cb0-b130-719ec1e7fe40",
+      "credentials": {
+        "telegramApi": {
+          "id": "gg7D6R2lYVsrqTm3",
+          "name": "Huyền"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const msg = $('Telegram Trigger1').first().json.channel_post;\nif (!msg) return [];\n\nlet type = 'other';\nlet file_id = null;\nlet caption = '';\nlet entities = [];\n\n// photo\nif (msg.photo?.length) {\n  type = 'photo';\n  file_id = msg.photo[msg.photo.length - 1].file_id;\n  caption = msg.caption || '';\n  entities = msg.caption_entities || [];\n}\n// video\nelse if (msg.video) {\n  type = 'video';\n  file_id = msg.video.file_id;\n  caption = msg.caption || '';\n  entities = msg.caption_entities || [];\n}\n// text\nelse if (msg.text) {\n  type = 'text';\n  caption = msg.text || '';\n  entities = msg.entities || [];\n}\n// document\nelse if (msg.document) {\n  type = 'document';\n  file_id = msg.document.file_id;\n  caption = msg.caption || '';\n  entities = msg.caption_entities || [];\n}\n// other\nelse {\n  type = 'other';\n  caption = '';\n  entities = msg.caption_entities || msg.entities || [];\n}\n\nreturn [{\n  json: {\n    media_group_id: msg.media_group_id || null,\n    message_id: msg.message_id,\n    reply_id: msg.reply_to_message?.message_id || null,\n    chat_id: String(msg.chat?.id || ''),\n    Group_name: msg.sender_chat?.title || '',\n    type,\n    file_id,\n    caption,\n    entities: JSON.stringify(entities),\n  }\n}];"
+      },
+      "id": "8bba7ae3-813e-4071-9bed-e573ff13d4a8",
+      "name": "Normalize Message1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -5728,
+        -400
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0f6a6715-82fa-468b-874d-9770aa9089a2",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -6240,
+        128
+      ],
+      "id": "d2991c37-69f3-4097-a20a-0940b12d50be",
+      "name": "If6"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -6016,
+        128
+      ],
+      "id": "9a8d629b-3ba6-4169-adb8-64c180fbd3be",
+      "name": "Get a file",
+      "webhookId": "d33bfa83-9aab-4373-8c7b-4d285e86385b",
+      "credentials": {
+        "telegramApi": {
+          "id": "gg7D6R2lYVsrqTm3",
+          "name": "Huyền"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "binaryPropertyName": "=data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -5792,
+        128
+      ],
+      "id": "1c1fb782-5896-4753-a20f-542d0c78026d",
+      "name": "Tele image to BS64",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "tableId": "Channel_main",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "Channel",
+              "fieldValue": "={{ $('Telegram Trigger1').item.json.channel_post.chat.title }}"
+            },
+            {
+              "fieldId": "ID_Post",
+              "fieldValue": "={{ $('Telegram Trigger1').item.json.channel_post.message_id }}"
+            },
+            {
+              "fieldId": "Content",
+              "fieldValue": "={{ $('Telegram Trigger1').first().json.channel_post.text || $('Telegram Trigger1').first().json.channel_post.caption }}"
+            },
+            {
+              "fieldId": "Photo",
+              "fieldValue": "=https://t.me/c/{{ $('Telegram Trigger1').item.json.channel_post.chat.id.toString().replace(\"-100\",\"\")}}/{{ $('Telegram Trigger1').first().json.channel_post.message_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -5280,
+        -400
+      ],
+      "id": "2dc15393-70ef-4885-aee0-6f3728dd929c",
+      "name": "Create a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "p9w14KlrS3dXAE91",
+          "name": "Supabase Post"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "N8N_sheet",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "Status",
+              "condition": "eq",
+              "keyValue": "Đăng signal"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -4640,
+        -48
+      ],
+      "id": "85454bc5-0490-4523-86d2-9ceda7fda453",
+      "name": "information channel post",
+      "credentials": {
+        "supabaseApi": {
+          "id": "p9w14KlrS3dXAE91",
+          "name": "Supabase Post"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "=Channel_{{ $json.Language }}",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ID_Main_Post",
+              "keyValue": "={{ $('Limit').item.json.reply_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -3968,
+        -288
+      ],
+      "id": "3b5d00dc-4171-4e6c-b78f-ee9ebb78d136",
+      "name": "each channel",
+      "executeOnce": false,
+      "credentials": {
+        "supabaseApi": {
+          "id": "p9w14KlrS3dXAE91",
+          "name": "Supabase Post"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Lấy dữ liệu bản dịch từ node Information Extractor\nconst translations = $('Information Extractor1').item.json.output;\n\n// Lấy thông tin từ sheet (mapping channel theo ngôn ngữ)\nconst channelId = $('each channel').item.json.Channel;\nconst language = $('Loop Over Items2').item.json.Language;\n\nconst post = $('Limit').all().filter(caption => caption).map(item => item.json.caption).join(', ');\n\n// Lấy file_id ảnh (size lớn nhất) từ message gốc\nconst photoArr = post?.photo || [];\nconst bestPhoto = photoArr.length ? photoArr[photoArr.length - 1] : null;\nconst photoFileId = bestPhoto?.file_id || \"\";\n\n// Reply id (giữ nguyên logic của bạn)\nconst replyId = $json['ID_Post'];\n\n// Lấy nội dung tin nhắn theo ngôn ngữ\nconst messageText = translations[language] || \"No translation found\";\n\nreturn {\n  chat_id: channelId,\n  language,\n  text: messageText,\n\n  // Cách 1: gửi ảnh bằng file_id thay vì URL/path\n  photo: photoFileId,\n\n  // reply_parameters như cũ\n  reply_parameters: replyId ? { message_id: parseInt(replyId, 10) } : null\n};\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3744,
+        -288
+      ],
+      "id": "df7d7b2e-0e83-4daa-aeb6-e395e724c49f",
+      "name": "text matches the channel",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const sourceItems = $(\"Limit\").all();\nconst sourceRows = sourceItems.map(i => i.json);\n\nconst channelItems = $(\"text matches the channel\").all();\nconst channelData = channelItems[0]?.json || {};\n\nconst target_chat_id = String($(\"Loop Over Items2\").first().json.Channel || \"\").trim();\n\nif (!sourceRows.length || !target_chat_id) return [];\n\nconst sharedText = String(channelData.text || \"\").trim();\n\nconst replyMessageId = channelData?.reply_parameters?.message_id || null;\nconst replyPart = replyMessageId\n  ? {\n      reply_parameters: {\n        message_id: Number(replyMessageId)\n      }\n    }\n  : {};\n\nconst groups = {};\n\nfor (const r of sourceRows) {\n  const key = r.media_group_id\n    ? `mg_${r.media_group_id}`\n    : `single_${r.message_id}`;\n\n  if (!groups[key]) groups[key] = [];\n  groups[key].push(r);\n}\n\nconst out = [];\n\nfor (const [groupKey, arr] of Object.entries(groups)) {\n  arr.sort((a, b) => Number(a.message_id || 0) - Number(b.message_id || 0));\n\n  const rowIds = arr\n    .map(r => r.id || r.rowId || r._id)\n    .filter(Boolean);\n\n  if (arr.length === 1) {\n    const r = arr[0];\n    const type = String(r.type || \"\").trim();\n    const file_id = r.file_id || null;\n\n    if (type === \"photo\" && file_id) {\n      out.push({\n        json: {\n          group_key: `${groupKey}_${target_chat_id}`,\n          source_group_key: groupKey,\n          send_method: \"sendPhoto\",\n          payload: {\n            chat_id: target_chat_id,\n            photo: file_id,\n            ...(sharedText ? { caption: sharedText } : {}),\n            ...replyPart\n          },\n          rows_to_mark: rowIds\n        }\n      });\n      continue;\n    }\n\n    if (type === \"video\" && file_id) {\n      out.push({\n        json: {\n          group_key: `${groupKey}_${target_chat_id}`,\n          source_group_key: groupKey,\n          send_method: \"sendVideo\",\n          payload: {\n            chat_id: target_chat_id,\n            video: file_id,\n            ...(sharedText ? { caption: sharedText } : {}),\n            ...replyPart\n          },\n          rows_to_mark: rowIds\n        }\n      });\n      continue;\n    }\n\n    if (type === \"document\" && file_id) {\n      out.push({\n        json: {\n          group_key: `${groupKey}_${target_chat_id}`,\n          source_group_key: groupKey,\n          send_method: \"sendDocument\",\n          payload: {\n            chat_id: target_chat_id,\n            document: file_id,\n            ...(sharedText ? { caption: sharedText } : {}),\n            ...replyPart\n          },\n          rows_to_mark: rowIds\n        }\n      });\n      continue;\n    }\n\n    out.push({\n      json: {\n        group_key: `${groupKey}_${target_chat_id}`,\n        source_group_key: groupKey,\n        send_method: \"sendMessage\",\n        payload: {\n          chat_id: target_chat_id,\n          text: sharedText || \"Unsupported message type\",\n          ...replyPart\n        },\n        rows_to_mark: rowIds\n      }\n    });\n\n    continue;\n  }\n\n  const media = arr\n    .filter(r => r.file_id && [\"photo\", \"video\"].includes(String(r.type || \"\").trim()))\n    .map((r, idx) => {\n      const item = {\n        type: String(r.type || \"\").trim(),\n        media: r.file_id\n      };\n\n      if (idx === 0 && sharedText) {\n        item.caption = sharedText;\n      }\n\n      return item;\n    });\n\n  if (!media.length) continue;\n\n  out.push({\n    json: {\n      group_key: `${groupKey}_${target_chat_id}`,\n      source_group_key: groupKey,\n      media_group_id: arr[0].media_group_id || null,\n      send_method: \"sendMediaGroup\",\n      payload: {\n        chat_id: target_chat_id,\n        media,\n        ...replyPart\n      },\n      rows_to_mark: rowIds\n    }\n  });\n}\n\nreturn out;"
+      },
+      "id": "295b7adb-7fe0-46b4-8da2-e2bd16da4281",
+      "name": "Ready Send",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3520,
+        -288
+      ],
+      "executeOnce": false,
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "Post"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -6912,
+        -64
+      ],
+      "id": "17c44cf2-2fa5-4e76-b5cf-2cb207346337",
+      "name": "Information send",
+      "credentials": {
+        "supabaseApi": {
+          "id": "p9w14KlrS3dXAE91",
+          "name": "Supabase Post"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot8540350418:AAGmNx3je74_ZfBsk4IAubVpDCjtSInOKUE/{{ $json.send_method }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.payload.toJsonString() }}",
+        "options": {}
+      },
+      "id": "f3394a6b-846c-437b-ba24-45f71cc0caa1",
+      "name": "Send Media",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -3296,
+        -288
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const sourceItems = $(\"Limit\").all();\nconst sourceRows = sourceItems.map(i => i.json);\n\nconst channelItems = $(\"text matches the channel 1\").all();\nconst channelData = channelItems[0]?.json || {};\n\nconst target_chat_id = String($(\"Loop Over Items4\").first().json.Channel || \"\").trim();\n\nif (!sourceRows.length || !target_chat_id) return [];\n\nconst sharedText = String(channelData.text || \"\").trim();\n\nconst groups = {};\n\nfor (const r of sourceRows) {\n  const key = r.media_group_id\n    ? `mg_${r.media_group_id}`\n    : `single_${r.message_id}`;\n\n  if (!groups[key]) groups[key] = [];\n  groups[key].push(r);\n}\n\nconst out = [];\n\nfor (const [groupKey, arr] of Object.entries(groups)) {\n  arr.sort((a, b) => Number(a.message_id || 0) - Number(b.message_id || 0));\n\n  const rowIds = arr\n    .map(r => r.id || r.rowId || r._id)\n    .filter(Boolean);\n\n  if (arr.length === 1) {\n    const r = arr[0];\n    const type = String(r.type || \"\").trim();\n    const file_id = r.file_id || null;\n\n    if (type === \"photo\" && file_id) {\n      out.push({\n        json: {\n          group_key: `${groupKey}_${target_chat_id}`,\n          source_group_key: groupKey,\n          send_method: \"sendPhoto\",\n          payload: {\n            chat_id: target_chat_id,\n            photo: file_id,\n            ...(sharedText ? { caption: sharedText } : {})\n          },\n          rows_to_mark: rowIds\n        }\n      });\n      continue;\n    }\n\n    if (type === \"video\" && file_id) {\n      out.push({\n        json: {\n          group_key: `${groupKey}_${target_chat_id}`,\n          source_group_key: groupKey,\n          send_method: \"sendVideo\",\n          payload: {\n            chat_id: target_chat_id,\n            video: file_id,\n            ...(sharedText ? { caption: sharedText } : {})\n          },\n          rows_to_mark: rowIds\n        }\n      });\n      continue;\n    }\n\n    if (type === \"document\" && file_id) {\n      out.push({\n        json: {\n          group_key: `${groupKey}_${target_chat_id}`,\n          source_group_key: groupKey,\n          send_method: \"sendDocument\",\n          payload: {\n            chat_id: target_chat_id,\n            document: file_id,\n            ...(sharedText ? { caption: sharedText } : {})\n          },\n          rows_to_mark: rowIds\n        }\n      });\n      continue;\n    }\n\n    out.push({\n      json: {\n        group_key: `${groupKey}_${target_chat_id}`,\n        source_group_key: groupKey,\n        send_method: \"sendMessage\",\n        payload: {\n          chat_id: target_chat_id,\n          text: sharedText || \"Unsupported message type\"\n        },\n        rows_to_mark: rowIds\n      }\n    });\n\n    continue;\n  }\n\n  const media = arr\n    .filter(r => r.file_id && [\"photo\", \"video\"].includes(String(r.type || \"\").trim()))\n    .map((r, idx) => {\n      const item = {\n        type: String(r.type || \"\").trim(),\n        media: r.file_id\n      };\n\n      if (idx === 0 && sharedText) {\n        item.caption = sharedText;\n      }\n\n      return item;\n    });\n\n  if (!media.length) continue;\n\n  out.push({\n    json: {\n      group_key: `${groupKey}_${target_chat_id}`,\n      source_group_key: groupKey,\n      media_group_id: arr[0].media_group_id || null,\n      send_method: \"sendMediaGroup\",\n      payload: {\n        chat_id: target_chat_id,\n        media\n      },\n      rows_to_mark: rowIds\n    }\n  });\n}\n\nreturn out;"
+      },
+      "id": "bb8b7fe8-9f47-4c4a-9570-c3fe91a15801",
+      "name": "Ready Send1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3744,
+        208
+      ],
+      "executeOnce": false,
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "tableId": "=Channel_{{ $('Loop Over Items2').first().json.Language }}",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "Channel",
+              "fieldValue": "={{ $json.result[0]?.sender_chat?.username ||  $json.result?.sender_chat?.username || \"null\"}}"
+            },
+            {
+              "fieldId": "ID_Post",
+              "fieldValue": "={{ $json.result[0]?.message_id || $json.result?.message_id || \"null\" }}"
+            },
+            {
+              "fieldId": "ID_Main_Post",
+              "fieldValue": "={{ $('Limit').first().json.message_id }}"
+            },
+            {
+              "fieldId": "Content",
+              "fieldValue": "={{ $json.result[0]?.caption || $json.result?.caption || \"null\"   }}"
+            },
+            {
+              "fieldId": "Photo",
+              "fieldValue": "=https://t.me/c/{{ $json.result[0]?.sender_chat?.id?.toString().replace(\"-100\",\"\") || $json.result?.sender_chat?.id || \"0\"}}/{{ $json.result[0]?.message_id ||  $json.result?.message_id || \"0\"}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -3072,
+        -208
+      ],
+      "id": "ef2400d5-a802-4446-af39-ce2f2588f947",
+      "name": "Create a row2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "p9w14KlrS3dXAE91",
+          "name": "Supabase Post"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "Post",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "message_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.message_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -3744,
+        -480
+      ],
+      "id": "7d49fda2-1e77-4bad-a03b-ccf3f9c57b99",
+      "name": "Delete a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "p9w14KlrS3dXAE91",
+          "name": "Supabase Post"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Chọn chế độ \"Run Once For All Items\" trong node Code\nreturn $(\"Limit\").all().map(item => {\n  return {\n    json: {\n      message_id: item.json.message_id\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3968,
+        -480
+      ],
+      "id": "a4bbdf47-a2f2-4d2c-aa13-d6a85be5e448",
+      "name": "Code in JavaScript1",
+      "alwaysOutputData": false,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Lấy dữ liệu bản dịch từ node Information Extractor\nconst translations = $('Information Extractor1').item.json.output;\n\n// Lấy thông tin từ node loop\nconst loopItem = $('Loop Over Items4').item.json;\nconst language = loopItem.Language;\nconst channelId = loopItem.channel_id;\n\n// Lấy nội dung tin nhắn theo ngôn ngữ\nconst messageText = translations[language] || \"No translation found\";\n\nreturn {\n  chat_id: channelId,\n  language,\n  text: messageText,\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3968,
+        208
+      ],
+      "id": "4ab935de-a9bb-448b-8788-9233eff113fb",
+      "name": "text matches the channel 1",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot8540350418:AAGmNx3je74_ZfBsk4IAubVpDCjtSInOKUE/{{ $json.send_method }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.payload.toJsonString() }}",
+        "options": {}
+      },
+      "id": "720f7b93-0599-4263-8ad1-45f949c0e971",
+      "name": "Send Media1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -3520,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "tableId": "=Channel_{{ $('Loop Over Items4').first().json.Language }}",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "Channel",
+              "fieldValue": "={{ $json.result?.[0]?.chat?.title || $json.result?.sender_chat?.title || \"No Title\" }}"
+            },
+            {
+              "fieldId": "ID_Post",
+              "fieldValue": "={{ $json.result[0]?.message_id || $json.result?.message_id || \"null\"}}"
+            },
+            {
+              "fieldId": "ID_Main_Post",
+              "fieldValue": "={{ $('Limit').first().json.message_id }}"
+            },
+            {
+              "fieldId": "Content",
+              "fieldValue": "={{ $json.result[0]?.caption ||  $json.result?.caption || \"null\"}}"
+            },
+            {
+              "fieldId": "Photo",
+              "fieldValue": "=https://t.me/c/{{ $json.result[0]?.chat?.id?.toString().replace(\"-100\",\"\") || $json.result?.sender_chat?.id.toString().replace(\"-100\",\"\") || \"0\"}}/{{ $json.result[0]?.message_id || $json.result?.message_id || \"0\"}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -3296,
+        272
+      ],
+      "id": "5f0620c5-1b8d-47cc-a7f5-55da105b784d",
+      "name": "Create a row3",
+      "credentials": {
+        "supabaseApi": {
+          "id": "p9w14KlrS3dXAE91",
+          "name": "Supabase Post"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "Post",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "message_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.message_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -3744,
+        16
+      ],
+      "id": "bc458b32-4591-4308-ac7b-9645be52f24f",
+      "name": "Delete a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "p9w14KlrS3dXAE91",
+          "name": "Supabase Post"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Chọn chế độ \"Run Once For All Items\" trong node Code\nreturn $(\"Limit\").all().map(item => {\n  return {\n    json: {\n      message_id: item.json.message_id\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3968,
+        16
+      ],
+      "id": "64ee38f5-4081-40f8-a4bc-faba7755be65",
+      "name": "Code in JavaScript",
+      "alwaysOutputData": false,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 2
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -7136,
+        -64
+      ],
+      "id": "c7f25524-a040-4e8b-b041-49604b0dd691",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "content": "## Nháp - Entities",
+        "height": 592,
+        "width": 1488,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -7152,
+        -1584
+      ],
+      "id": "235d0ed4-9fef-4cab-984a-8c482da80a61",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -7008,
+        -1136
+      ],
+      "id": "78ed60b5-720f-45c7-8c68-38f5a40bb9e9",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "ws48KIjpDIlDEZwz",
+          "name": "OpenAi BingX 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = items[0].json.output;\n\n// Parse languages\nconst languages = input.language.split(\",\").map(l => l.trim());\n\n// Regex-safe extract\nfunction extractText(lang) {\n  const regex = new RegExp(\n    `LANG=${lang}\\\\|TEXT=([\\\\s\\\\S]*?)(?=\\\\nLANG=|$)`\n  );\n  const match = input.text.match(regex);\n  return match ? match[1] : \"\";\n}\n\nfunction extractEntities(lang) {\n  const regex = new RegExp(\n    `LANG=${lang}\\\\|ENTITIES=(\\\\[[\\\\s\\\\S]*?\\\\])`\n  );\n  const match = input.entities.match(regex);\n  return match ? JSON.parse(match[1]) : [];\n}\n\n// 🔥 IMPORTANT: return EXACTLY 1 ITEM PER LANGUAGE\nreturn languages.map(lang => ({\n  json: {\n    language: lang,\n    text: extractText(lang),      // multiline SAFE\n    entities: extractEntities(lang)\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -6720,
+        -1248
+      ],
+      "id": "b73bf073-079b-470b-9c41-5f30ca7b62db",
+      "name": "Code in JavaScript5"
+    },
+    {
+      "parameters": {
+        "text": "=h",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "language",
+              "description": "5 language",
+              "required": true
+            },
+            {
+              "name": "text",
+              "description": "text",
+              "required": true
+            },
+            {
+              "name": "entities",
+              "description": "entities",
+              "required": true
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "=You are a Telegram multilingual translation and entity reconstruction engine.\n\nYour task:\nGiven a Telegram message object (text + entities), you MUST output EXACTLY ONE JSON record with 3 attributes:\n- language\n- text\n- entities\n\n========================\nOUTPUT FORMAT (STRICT)\n========================\n\nlanguage:\nA single string containing exactly:\nEnglish,Russian,Chinese,Indonesian,Vietnamese\n\ntext:\nA single string.\nInside this string, encode MULTIPLE language blocks in the following exact format:\n\nLANG=English|TEXT=...\nLANG=Russian|TEXT=...\nLANG=Chinese|TEXT=...\nLANG=Indonesian|TEXT=...\nLANG=Vietnamese|TEXT=...\n\nRules for TEXT:\n- Preserve ALL emojis exactly, same order, same line\n- NEVER move emojis across lines\n- NEVER add or remove emojis\n- Preserve exact line breaks\n- Hashtags MUST stay hashtags\n- URLs MUST remain unchanged\n- Do NOT rephrase around entities\n- Do NOT merge or split sentences\n\n========================\nENTITIES\n========================\n\nentities:\nA single string.\nInside this string, encode MULTIPLE language blocks in the following exact format:\n\nLANG=English|ENTITIES=[ENTITY_ARRAY]\nLANG=Russian|ENTITIES=[ENTITY_ARRAY]\nLANG=Chinese|ENTITIES=[ENTITY_ARRAY]\nLANG=Indonesian|ENTITIES=[ENTITY_ARRAY]\nLANG=Vietnamese|ENTITIES=[ENTITY_ARRAY]\n\n========================\nENTITY RULES (EXTREME)\n========================\n\n- Entity count MUST exactly match input\n- Entity order MUST be preserved\n- Entity type MUST be preserved\n- Entity URLs MUST be preserved\n- NEVER invent or remove entities\n\nFor EACH entity:\n- First COPY the exact translated substring\n- Then COUNT UTF-16 units from the start of the TEXT to that substring\n- Emojis = 2 units\n- Line breaks = 1 unit\n- DO NOT estimate\n- DO NOT reuse offsets\n- DO NOT align entities to “similar visual position”\n- Entity MUST start and end at UTF-16 boundaries\n- NEVER start or end inside a word\n\n========================\nFAIL-SAFE RULE\n========================\n\nIf precise UTF-16 offset cannot be determined with certainty:\n- Choose a slightly larger entity span\n- NEVER choose a smaller or partial-word span\n\n========================\nSTRICT OUTPUT\n========================\n\n- Output ONLY the JSON object\n- No explanations\n- No comments\n- No extra fields"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        -7072,
+        -1360
+      ],
+      "id": "1ea61bb3-ce37-425f-b297-da5cfb116fd1",
+      "name": "Information Extractor2"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// 1. Ngôn ngữ từ Loop (Google Sheet)\nconst targetLanguage = $json[\"Ngôn ngữ\"];\n\n// 2. Channel ID / username\nconst channelId = $json.Channel;\n\n// 3. Lấy toàn bộ bản dịch từ Code in JavaScript1\nconst translations = $(\"Code in JavaScript5\")\n  .all()\n  .map(item => item.json);\n\n// 4. Match language\nconst matched = translations.find(\n  t => t.language === targetLanguage\n);\n\nif (!matched) {\n  throw new Error(`❌ Không tìm thấy language: ${targetLanguage}`);\n}\n\n// 5. Telegram post gốc\nconst post = $(\"Telegram Trigger\").first().json.channel_post;\n\n// 6. Lấy ảnh lớn nhất (nếu có)\nconst photos = post.photo || [];\nconst bestPhoto = photos.length ? photos[photos.length - 1] : null;\nconst photoFileId = bestPhoto?.file_id ?? null;\n\n// 7. Build payload cho Telegram\nif (photoFileId) {\n  return {\n    chat_id: channelId,\n    method: \"sendPhoto\",\n\n    photo: photoFileId,\n    caption: matched.text,\n    caption_entities: matched.entities,\n\n    language: targetLanguage\n  };\n}\n\nreturn {\n  chat_id: channelId,\n  method: \"sendMessage\",\n  text: matched.text,\n  entities: matched.entities,\n  payload_key: photoFileId ? \"caption\" : \"text\",\n  photo: photoFileId ,\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -6048,
+        -1248
+      ],
+      "id": "7a880a03-a4ef-404b-8027-b4f8af8f3204",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.telegram.org/bot8285066611:AAGcM6HUjAwUq_p-yHPYRhOicbVyb5zU8xU/{{ $json.method }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "={{ $json.chat_id }}"
+            },
+            {
+              "name": "={{ $json.payload_key }}",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "name": "photo",
+              "value": "={{ $json.photo }}"
+            },
+            {
+              "name": "entities",
+              "value": "={{ $json.entities.toJsonString() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -5824,
+        -1184
+      ],
+      "id": "6658693a-c0c0-4096-ba54-f63632185560",
+      "name": "HTTP Request3"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -6272,
+        -1248
+      ],
+      "id": "209b1f4a-c7f4-48ea-b2ad-c07194fb5d15",
+      "name": "Loop Over Items3"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1dQJUfXTxvex4fscd0cPdsND8qsEfeyCGd67lb-Jbdx8",
+          "mode": "list",
+          "cachedResultName": "Bài đăng Kèo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dQJUfXTxvex4fscd0cPdsND8qsEfeyCGd67lb-Jbdx8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1444356635,
+          "mode": "list",
+          "cachedResultName": "n8n-sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dQJUfXTxvex4fscd0cPdsND8qsEfeyCGd67lb-Jbdx8/edit#gid=1444356635"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -6496,
+        -1248
+      ],
+      "id": "82eb3948-d8b2-489c-83f4-73ed52824867",
+      "name": "Get row(s) in sheet2",
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DvK9TCx0cmptLk1L",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1dQJUfXTxvex4fscd0cPdsND8qsEfeyCGd67lb-Jbdx8",
+          "mode": "list",
+          "cachedResultName": "Bài đăng Kèo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dQJUfXTxvex4fscd0cPdsND8qsEfeyCGd67lb-Jbdx8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 726232726,
+          "mode": "list",
+          "cachedResultName": "Bài đăng khác",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dQJUfXTxvex4fscd0cPdsND8qsEfeyCGd67lb-Jbdx8/edit#gid=726232726"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Channel": "={{ $('Telegram Trigger').item.json.channel_post.sender_chat.title }}",
+            "ID": "={{ $('Telegram Trigger').item.json.channel_post.message_id }}",
+            "Bài đăng": "={{ $('Telegram Trigger').first().json.channel_post.text || $('Telegram Trigger').first().json.channel_post.caption }}",
+            "Hình ảnh": "=https://t.me/{{ $('Telegram Trigger').first().json.channel_post.sender_chat.username }}/{{ $('Telegram Trigger').first().json.channel_post.message_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Channel",
+              "displayName": "Channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Bài đăng",
+              "displayName": "Bài đăng",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Hình ảnh",
+              "displayName": "Hình ảnh",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -6048,
+        -1440
+      ],
+      "id": "0bf31e18-bddf-429b-9b4c-4a9f92da2486",
+      "name": "Append row in sheet5",
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DvK9TCx0cmptLk1L",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $items().map(item => item.json.data).join(',') }}"
+            }
+          ]
+        },
+        "options": {
+          "systemMessage": "=You are an OCR-based moderation assistant for trading and financial images.\n\nYour input includes one image or multiple images.\n\nAnalyze all provided images and return only one of these two exact strings:\n\"Yes\"\n\"No\"\n\nDo not return explanations.\nDo not return JSON.\nDo not return any extra text.\n\nReturn \"No\" only if at least one image clearly and explicitly matches one of these conditions:\n- It clearly contains Vietnamese words or Vietnamese phrases.\n- It clearly contains the text \"BC Capital\".\n  - Case-insensitive match.\n  - Includes logo, watermark, username, title, overlay text, handwritten text, or any visible text.\n- It is clearly not related to trading, investing, charts, market analysis, or financial screenshots.\n\nImportant:\n- If the image is a financial chart, trading screenshot, or market analysis image, it should be considered valid.\n- Valid categories include crypto, forex, gold, XAU, commodities, stocks, indices, and other financial markets.\n- Do not treat ticker symbols, currency codes, numbers, abbreviations, UI labels, or indicators as Vietnamese text.\n- Words such as VND, USD, XAU, BTC, EMA, RSI, MACD, chart labels, prices, symbols, and market abbreviations do not count as Vietnamese text.\n- Hand-drawn lines, arrows, and technical analysis markings are allowed.\n- If the content is clearly a trading or financial chart and there is no clear Vietnamese text and no clear \"BC Capital\", return \"Yes\".\n- If uncertain whether text is Vietnamese, do not reject based on that alone.\n\nReturn \"Yes\" if all images are valid under these rules.\n\nFinal rule:\nReturn exactly one string only:\nYes\nor\nNo"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        -5568,
+        128
+      ],
+      "id": "7463f58b-397b-4d1c-a92b-fdaea6a1a37c",
+      "name": "Message a model1",
+      "executeOnce": true,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "hLaCmEpDi18aodgc",
+          "name": "Google Gemini(PaLM) BingX"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "552288c8-f843-4faf-b086-1a17037a4ed2",
+              "leftValue": "={{ $json.content.parts[0].text }}",
+              "rightValue": "Yes",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -5216,
+        128
+      ],
+      "id": "f6aa7e83-0cb5-4ad6-9c50-bb3d4c5ac322",
+      "name": "If",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "2e3fb802-edc4-4e62-aa9a-3fe0e96f2e1d",
+              "leftValue": "={{ $json.type }}",
+              "rightValue": "video",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -6464,
+        -64
+      ],
+      "id": "f564650b-ac2a-44e6-b58c-d28b4fbcc161",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "Post",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "message_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.message_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -4768,
+        368
+      ],
+      "id": "8dedb68c-5dff-464a-b04e-5e1ef96b840d",
+      "name": "Delete a row2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "p9w14KlrS3dXAE91",
+          "name": "Supabase Post"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Chọn chế độ \"Run Once For All Items\" trong node Code\nreturn $(\"Limit\").all().map(item => {\n  return {\n    json: {\n      message_id: item.json.message_id\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4992,
+        368
+      ],
+      "id": "05d8453c-ca0a-4cdd-8b79-314377c5f672",
+      "name": "Code in JavaScript2",
+      "alwaysOutputData": false,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const itemsIn = $input.all();\n\nif (!itemsIn.length) {\n  return [];\n}\n\n// Lấy data gốc\nconst rows = itemsIn.map(item => item.json);\n\n// Sắp xếp để đảm bảo lấy đúng hàng đầu tiên\nrows.sort((a, b) => {\n  const dateA = new Date(a.created_at || 0).getTime();\n  const dateB = new Date(b.created_at || 0).getTime();\n  return dateA - dateB;\n});\n\n// Lấy hàng đầu tiên\nconst firstRow = rows[0];\n\n// media_group_id của hàng đầu tiên\nconst mediaGroupId = firstRow.media_group_id;\n\n// Nếu có media_group_id => lấy toàn bộ hàng cùng group\nif (mediaGroupId !== null && mediaGroupId !== undefined && mediaGroupId !== \"\") {\n  const groupedRows = rows.filter(\n    row => String(row.media_group_id) === String(mediaGroupId)\n  );\n\n  return groupedRows.map(row => ({\n    json: row\n  }));\n}\n\n// Nếu không có media_group_id => chỉ trả về 1 hàng\nreturn [\n  {\n    json: firstRow\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -6704,
+        -64
+      ],
+      "id": "c976340c-11c9-438e-a3bc-effb016acee0",
+      "name": "Limit",
+      "retryOnFail": false,
+      "onError": "continueErrorOutput"
+    }
+  ],
+  "pinData": {
+    "Schedule Trigger": [
+      {
+        "json": {
+          "timestamp": "2026-04-21T12:16:27.003+07:00",
+          "Readable date": "April 21st 2026, 12:16:27 pm",
+          "Readable time": "12:16:27 pm",
+          "Day of week": "Tuesday",
+          "Year": "2026",
+          "Month": "April",
+          "Day of month": "21",
+          "Hour": "12",
+          "Minute": "16",
+          "Second": "27",
+          "Timezone": "Asia/Ho_Chi_Minh (UTC+07:00)"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Information Extractor1": {
+      "main": [
+        [
+          {
+            "node": "information channel post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "each channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items4": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "text matches the channel 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [
+          {
+            "node": "Normalize Message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Message1": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If6": {
+      "main": [
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "Tele image to BS64",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tele image to BS64": {
+      "main": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Create a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "information channel post": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "each channel": {
+      "main": [
+        [
+          {
+            "node": "text matches the channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "text matches the channel": {
+      "main": [
+        [
+          {
+            "node": "Ready Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information send": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ready Send": {
+      "main": [
+        [
+          {
+            "node": "Send Media",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Media": {
+      "main": [
+        [
+          {
+            "node": "Create a row2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Delete a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "text matches the channel 1": {
+      "main": [
+        [
+          {
+            "node": "Ready Send1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ready Send1": {
+      "main": [
+        [
+          {
+            "node": "Send Media1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Media1": {
+      "main": [
+        [
+          {
+            "node": "Create a row3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Delete a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Information send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript5": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items3": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Delete a row2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "34ec9e7c-7085-46be-9c41-2e22e427fe84",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f5fb4061ed08960c69361f3ac140c4b4a1277c94431dab6c42e4e1cf6a2153b5"
+  },
+  "id": "XqzPqbyxJCSTcvse",
+  "tags": []
+}

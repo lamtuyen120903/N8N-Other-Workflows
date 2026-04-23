@@ -1,0 +1,1034 @@
+{
+  "name": "Bot group BD_Send",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "34O2u3hzhUP5Jtqm",
+          "mode": "id"
+        },
+        "returnAll": true
+      },
+      "id": "fb93873f-dd7b-40b2-87ea-b9a85bb87963",
+      "name": "Get Unprocessed Rows1",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -3120,
+        352
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0",
+          "mode": "list",
+          "cachedResultName": "Tổng hợp bài post BD",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 609097983,
+          "mode": "list",
+          "cachedResultName": "KPI_Post",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0/edit#gid=609097983"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "MONTH": "={{$now.format('M')}}",
+            "TYPE": "={{ $json.Topic}}",
+            "CONTENT": "={{ $json.caption }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "MONTH",
+              "displayName": "MONTH",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "TYPE",
+              "displayName": "TYPE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "CONTENT",
+              "displayName": "CONTENT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "STATUS",
+              "displayName": "STATUS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -2672,
+        64
+      ],
+      "id": "d5af4604-0aaa-46e4-8f66-5227d11e1b59",
+      "name": "Append row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DvK9TCx0cmptLk1L",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0",
+          "mode": "list",
+          "cachedResultName": "Tổng hợp bài post BD",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 348961845,
+          "mode": "list",
+          "cachedResultName": "Ref_code",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0/edit#gid=348961845"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -2448,
+        64
+      ],
+      "id": "ac3a90de-41ab-4aba-9dbe-92a87e05aa4c",
+      "name": "Get row(s) in sheet3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DvK9TCx0cmptLk1L",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.Topic }}",
+                    "rightValue": "KPI Post",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "587fa980-94a3-47db-883b-fab050b8aefd"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "KPI Post"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "68a77b20-4f7e-4bab-9bbd-3eec6ba635d2",
+                    "leftValue": "={{ $json.Topic }}",
+                    "rightValue": "Event Salary",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Event Salary"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -2896,
+        352
+      ],
+      "id": "1f52dac9-911c-4aab-9bb8-e9c3479af067",
+      "name": "Switch3",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0",
+          "mode": "list",
+          "cachedResultName": "Tổng hợp bài post BD",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1391122786,
+          "mode": "list",
+          "cachedResultName": "Event_Salary",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0/edit#gid=1391122786"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "MONTH": "={{$now.format('M')}}",
+            "TYPE": "={{ $json.Topic}}",
+            "CONTENT": "={{ $json.caption }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "MONTH",
+              "displayName": "MONTH",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "TYPE",
+              "displayName": "TYPE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "CONTENT",
+              "displayName": "CONTENT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "STATUS",
+              "displayName": "STATUS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -2656,
+        480
+      ],
+      "id": "c6a98f27-fc1b-4508-953b-ac5672f2e396",
+      "name": "Append row in sheet3",
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DvK9TCx0cmptLk1L",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0",
+          "mode": "list",
+          "cachedResultName": "Tổng hợp bài post BD",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 831832366,
+          "mode": "list",
+          "cachedResultName": "Ref_code2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0/edit#gid=831832366"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -2432,
+        480
+      ],
+      "id": "ac8422a9-7c66-4169-b5ac-4ca390e1bc64",
+      "name": "Get row(s) in sheet1",
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DvK9TCx0cmptLk1L",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -3328,
+        352
+      ],
+      "id": "4fbc522c-c3a0-4c60-94cd-9fb872b9d0dc",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "34O2u3hzhUP5Jtqm"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "=message_id",
+              "condition": "=eq",
+              "keyValue": "={{ $json.message_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -1552,
+        -48
+      ],
+      "id": "9517fb2b-ce66-47c0-84b7-b1ef5c80d658",
+      "name": "Delete row(s)"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -2000,
+        64
+      ],
+      "id": "4a1c4476-2f66-4478-8d64-6ab5eb021748",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0",
+          "mode": "list",
+          "cachedResultName": "Tổng hợp bài post BD",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 609097983,
+          "mode": "list",
+          "cachedResultName": "KPI_Post",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0/edit#gid=609097983"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "TYPE": "={{ $('Append row in sheet2').first().json.TYPE }}",
+            "STATUS": "Done"
+          },
+          "matchingColumns": [
+            "TYPE"
+          ],
+          "schema": [
+            {
+              "id": "MONTH",
+              "displayName": "MONTH",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "TYPE",
+              "displayName": "TYPE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "CONTENT",
+              "displayName": "CONTENT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "STATUS",
+              "displayName": "STATUS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1312,
+        -48
+      ],
+      "id": "3778e9ea-d41d-409a-8960-69861591b28a",
+      "name": "Append or update row in sheet",
+      "alwaysOutputData": false,
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DvK9TCx0cmptLk1L",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot8585580396:AAE2hdc9U-Zjz20I-_OTOCQz1JdGcClK2QA/{{ $json.send_method }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.payload.toJsonString() }}",
+        "options": {}
+      },
+      "id": "b7286f0e-c45f-4022-b7df-81bff93585d2",
+      "name": "Send Media",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1776,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Chọn chế độ \"Run Once For All Items\" trong node Code\nreturn $(\"Get Unprocessed Rows1\").all().map(item => {\n  return {\n    json: {\n      message_id: item.json.message_id\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1776,
+        -48
+      ],
+      "id": "81dda2ab-9684-4bfc-98fa-312a61c10673",
+      "name": "Code in JavaScript1",
+      "alwaysOutputData": false,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const sourceItems = $(\"Get Unprocessed Rows1\").all();\nconst sourceRows = sourceItems.map(i => i.json);\n\nconst targetGroups = items.map(i => i.json);\n\nif (!sourceRows.length || !targetGroups.length) return [];\n\nconst groups = {};\n\n// Gom nhóm bài gốc:\n// - có media_group_id => album\n// - không có => single\nfor (const r of sourceRows) {\n  const key = r.media_group_id ? `mg_${r.media_group_id}` : `single_${r.message_id}`;\n  if (!groups[key]) groups[key] = [];\n  groups[key].push(r);\n}\n\n// =========================\n// HELPER: inject ref vào text/url\n// =========================\nfunction injectRef(text, refcode) {\n  const s = String(text || '');\n  const ref = String(refcode || '');\n\n  if (!s || !ref) return s;\n\n  // Chỉ cần có ref= ở đâu cũng thay\n  if (!/ref=/i.test(s)) return s;\n\n  // Chỉ replace ref= đầu tiên\n  return s.replace(/ref=([^&#\"\\s>]*)/i, `ref=${ref}`);\n}\n\n// Trả về cả text mới + thông tin đoạn đã bị thay để còn chỉnh entity\nfunction injectRefWithMeta(text, refcode) {\n  const s = String(text || '');\n  const ref = String(refcode || '');\n\n  if (!s || !ref) {\n    return {\n      text: s,\n      changed: false,\n      start: -1,\n      oldLength: 0,\n      newLength: 0,\n      delta: 0\n    };\n  }\n\n  const match = s.match(/ref=([^&#\"\\s>]*)/i);\n  if (!match || match.index == null) {\n    return {\n      text: s,\n      changed: false,\n      start: -1,\n      oldLength: 0,\n      newLength: 0,\n      delta: 0\n    };\n  }\n\n  const oldPart = match[0];\n  const newPart = `ref=${ref}`;\n  const start = match.index;\n\n  const newText =\n    s.slice(0, start) +\n    newPart +\n    s.slice(start + oldPart.length);\n\n  return {\n    text: newText,\n    changed: oldPart !== newPart,\n    start,\n    oldLength: oldPart.length,\n    newLength: newPart.length,\n    delta: newPart.length - oldPart.length\n  };\n}\n\nfunction parseEntities(input) {\n  if (!input) return [];\n\n  if (Array.isArray(input)) return input;\n\n  if (typeof input === 'string') {\n    const trimmed = input.trim();\n    if (!trimmed) return [];\n\n    try {\n      const parsed = JSON.parse(trimmed);\n      return Array.isArray(parsed) ? parsed : [];\n    } catch (e) {\n      return [];\n    }\n  }\n\n  return [];\n}\n\n// =========================\n// HELPER: chỉnh offset/length entity khi text bị đổi độ dài\n// =========================\nfunction shiftEntitiesAfterReplace(inputEntities, replaceMeta) {\n  const entities = parseEntities(inputEntities);\n  if (!entities.length || !replaceMeta || !replaceMeta.changed || !replaceMeta.delta) {\n    return entities;\n  }\n\n  const start = replaceMeta.start;\n  const oldEnd = start + replaceMeta.oldLength;\n  const delta = replaceMeta.delta;\n\n  return entities.map(entity => {\n    if (!entity || typeof entity.offset !== 'number' || typeof entity.length !== 'number') {\n      return entity;\n    }\n\n    const eStart = entity.offset;\n    const eEnd = entity.offset + entity.length;\n\n    // entity nằm hoàn toàn trước đoạn replace\n    if (eEnd <= start) {\n      return { ...entity };\n    }\n\n    // entity nằm hoàn toàn sau đoạn replace\n    if (eStart >= oldEnd) {\n      return {\n        ...entity,\n        offset: entity.offset + delta\n      };\n    }\n\n    // entity có overlap với đoạn replace\n    // cần tăng length để vẫn phủ đúng phần text sau khi URL dài/ngắn đi\n    return {\n      ...entity,\n      length: entity.length + delta\n    };\n  });\n}\n\n// Áp logic refcode vào entity nào có type = text_link\nfunction injectRefToEntities(input, refcode) {\n  const entities = parseEntities(input);\n  if (!entities.length) return [];\n\n  return entities.map(entity => {\n    if (entity && entity.type === 'text_link' && entity.url) {\n      return {\n        ...entity,\n        url: injectRef(entity.url, refcode)\n      };\n    }\n    return { ...entity };\n  });\n}\n\n// ưu tiên caption_entities, nếu không có thì fallback entities\nfunction getBaseEntities(row) {\n  const captionEntities = parseEntities(row.caption_entities);\n  if (captionEntities.length) return captionEntities;\n\n  const entities = parseEntities(row.entities);\n  return entities.length ? entities : [];\n}\n\n// Nối CTA vào cuối nội dung\nfunction appendCTA(content, cta) {\n  const body = String(content || '').replace(/\\n+$/g, '').trim();\n  const tail = String(cta || '').replace(/^\\n+/g, '').trim();\n\n  if (!body && !tail) return '';\n  if (!body) return tail;\n  if (!tail) return body;\n\n  return `${body}\\n${tail}`;\n}\n\n// Lấy content + entities cuối cùng, đồng bộ offset/length sau khi chèn ref\nfunction getFinalContentAndEntities(row, refcode, cta) {\n  const rawCaption = String(row.caption || '');\n  const baseEntities = getBaseEntities(row);\n\n  // 1) sửa ref trong text hiển thị\n  const injected = injectRefWithMeta(rawCaption, refcode);\n\n  // 2) sửa offset/length entity theo độ lệch text\n  let finalEntities = shiftEntitiesAfterReplace(baseEntities, injected);\n\n  // 3) sửa riêng url của text_link entity\n  finalEntities = injectRefToEntities(finalEntities, refcode);\n\n  // 4) append CTA như logic cũ\n  const finalContent = appendCTA(injected.text, cta);\n\n  return {\n    content: finalContent,\n    entities: finalEntities\n  };\n}\n\nconst out = [];\n\nfor (const target of targetGroups) {\n  const target_chat_id = String(target[\"ID GROUP\"] || '').trim();\n  const refcode = String(target[\"REFCODE\"] || '').trim();\n  const community_name = target[\"TÊN CỘNG ĐỒNG\"] || '';\n  const ctaRaw = target[\"CTA\"] || '';\n  const cta = injectRef(ctaRaw, refcode);\n\n  if (!target_chat_id) continue;\n\n  for (const [groupKey, arr] of Object.entries(groups)) {\n    // sort để giữ đúng thứ tự album\n    arr.sort((a, b) => Number(a.message_id || 0) - Number(b.message_id || 0));\n\n    const rowIds = arr\n      .map(r => r.id || r.rowId || r._id)\n      .filter(Boolean);\n\n    // =========================\n    // CASE 1: SINGLE ITEM\n    // =========================\n    if (arr.length === 1) {\n      const r = arr[0];\n      const type = String(r.type || '').trim();\n      const file_id = r.file_id || null;\n\n      const { content: finalContent, entities: finalEntities } =\n        getFinalContentAndEntities(r, refcode, cta);\n\n      if (type === 'photo' && file_id) {\n        out.push({\n          json: {\n            target_chat_id,\n            refcode,\n            community_name,\n            group_key: `${groupKey}_${target_chat_id}`,\n            source_group_key: groupKey,\n            media_group_id: null,\n            send_method: 'sendPhoto',\n            payload: {\n              chat_id: target_chat_id,\n              photo: file_id,\n              ...(finalContent ? { caption: finalContent } : {}),\n              ...(finalEntities.length ? { caption_entities: finalEntities } : {})\n            },\n            rows_to_mark: rowIds\n          }\n        });\n        continue;\n      }\n\n      if (type === 'video' && file_id) {\n        out.push({\n          json: {\n            target_chat_id,\n            refcode,\n            community_name,\n            group_key: `${groupKey}_${target_chat_id}`,\n            source_group_key: groupKey,\n            media_group_id: null,\n            send_method: 'sendVideo',\n            payload: {\n              chat_id: target_chat_id,\n              video: file_id,\n              ...(finalContent ? { caption: finalContent } : {}),\n              ...(finalEntities.length ? { caption_entities: finalEntities } : {})\n            },\n            rows_to_mark: rowIds\n          }\n        });\n        continue;\n      }\n\n      if (type === 'document' && file_id) {\n        out.push({\n          json: {\n            target_chat_id,\n            refcode,\n            community_name,\n            group_key: `${groupKey}_${target_chat_id}`,\n            source_group_key: groupKey,\n            media_group_id: null,\n            send_method: 'sendDocument',\n            payload: {\n              chat_id: target_chat_id,\n              document: file_id,\n              ...(finalContent ? { caption: finalContent } : {}),\n              ...(finalEntities.length ? { caption_entities: finalEntities } : {})\n            },\n            rows_to_mark: rowIds\n          }\n        });\n        continue;\n      }\n\n      // type=text và mọi type khác không phải media\n      out.push({\n        json: {\n          target_chat_id,\n          refcode,\n          community_name,\n          group_key: `${groupKey}_${target_chat_id}`,\n          source_group_key: groupKey,\n          media_group_id: null,\n          send_method: 'sendMessage',\n          payload: {\n            chat_id: target_chat_id,\n            text: finalContent || cta || 'Unsupported message type',\n            ...(finalEntities.length ? { entities: finalEntities } : {})\n          },\n          rows_to_mark: rowIds\n        }\n      });\n\n      continue;\n    }\n\n    // =========================\n    // CASE 2: ALBUM\n    // =========================\n    const allowedAlbumTypes = ['photo', 'video'];\n\n    const media = arr\n      .filter(r => r.file_id && allowedAlbumTypes.includes(String(r.type || '').trim()))\n      .map((r, idx) => {\n        const item = {\n          type: String(r.type || '').trim(),\n          media: r.file_id\n        };\n\n        // chỉ item đầu có caption + CTA\n        if (idx === 0) {\n          const { content: finalContent, entities: finalEntities } =\n            getFinalContentAndEntities(r, refcode, cta);\n\n          if (finalContent) {\n            item.caption = finalContent;\n            if (finalEntities.length) {\n              item.caption_entities = finalEntities;\n            }\n          }\n        }\n\n        return item;\n      });\n\n    if (!media.length) continue;\n\n    out.push({\n      json: {\n        target_chat_id,\n        refcode,\n        community_name,\n        group_key: `${groupKey}_${target_chat_id}`,\n        source_group_key: groupKey,\n        media_group_id: arr[0].media_group_id || null,\n        send_method: 'sendMediaGroup',\n        payload: {\n          chat_id: target_chat_id,\n          media\n        },\n        rows_to_mark: rowIds\n      }\n    });\n  }\n}\n\nreturn out;"
+      },
+      "id": "3962563f-c59c-4323-8174-a2118c3f2c84",
+      "name": "Ready Send1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2224,
+        64
+      ],
+      "executeOnce": false,
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "34O2u3hzhUP5Jtqm"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "=message_id",
+              "condition": "=eq",
+              "keyValue": "={{ $json.message_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -1536,
+        368
+      ],
+      "id": "eacb2c03-e3a2-4327-97a2-2f6d874d5e88",
+      "name": "Delete row(s)1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1984,
+        480
+      ],
+      "id": "7394a8b7-a4da-4cef-a4ec-4aa69b9508e0",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0",
+          "mode": "list",
+          "cachedResultName": "Tổng hợp bài post BD",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1391122786,
+          "mode": "list",
+          "cachedResultName": "Event_Salary",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qCbo7eE0HUy_xA4I3l9hBQURSUWC63dYAfr_xBSX4k0/edit#gid=1391122786"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "TYPE": "={{ $('Append row in sheet3').first().json.TYPE }}",
+            "STATUS": "Done"
+          },
+          "matchingColumns": [
+            "TYPE"
+          ],
+          "schema": [
+            {
+              "id": "MONTH",
+              "displayName": "MONTH",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "TYPE",
+              "displayName": "TYPE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "CONTENT",
+              "displayName": "CONTENT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "STATUS",
+              "displayName": "STATUS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1328,
+        384
+      ],
+      "id": "3df4c573-bbee-404f-b953-2125af5ee28c",
+      "name": "Append or update row in sheet1",
+      "alwaysOutputData": false,
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DvK9TCx0cmptLk1L",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Loop Over Items1').item.json.payload.chat_id }}",
+        "text": "=Thân chào anh/chị Admin! Mình là Bot hỗ trợ gửi bài {{ $('Get Unprocessed Rows1').item.json.Topic }}. Nội dung bài đăng ở trên đã chèn sẵn link mời của team. Admin vui lòng đăng bài trong vòng 72 giờ và phản hồi lại link bài đăng (reply tin nhắn này) để hệ thống tự động ghi nhận nhé. Cảm ơn Admin đã hỗ trợ!",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1536,
+        576
+      ],
+      "id": "f7a76b30-4af9-4d31-828d-4b65c4203105",
+      "name": "Send a text message1",
+      "webhookId": "1e912bab-c8f7-4689-bd42-b672c1638050",
+      "credentials": {
+        "telegramApi": {
+          "id": "wWdqFKdIS5n1VUUz",
+          "name": "Huyền - KPI Post"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot8585580396:AAE2hdc9U-Zjz20I-_OTOCQz1JdGcClK2QA/{{ $json.send_method }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.payload }}",
+        "options": {}
+      },
+      "id": "870b4c5f-6a36-429b-ae56-87a4900191cb",
+      "name": "Send Media1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1760,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Chọn chế độ \"Run Once For All Items\" trong node Code\nreturn $(\"Get Unprocessed Rows1\").all().map(item => {\n  return {\n    json: {\n      message_id: item.json.message_id\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1760,
+        368
+      ],
+      "id": "3fcbb533-8114-4836-bb8f-14b4c1196cf7",
+      "name": "Code in JavaScript",
+      "alwaysOutputData": false,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const sourceItems = $(\"Get Unprocessed Rows1\").all();\nconst sourceRows = sourceItems.map(i => i.json);\n\nconst targetGroups = items.map(i => i.json);\n\nif (!sourceRows.length || !targetGroups.length) return [];\n\nconst groups = {};\n\n// Gom nhóm bài gốc:\n// - có media_group_id => album\n// - không có => single\nfor (const r of sourceRows) {\n  const key = r.media_group_id ? `mg_${r.media_group_id}` : `single_${r.message_id}`;\n  if (!groups[key]) groups[key] = [];\n  groups[key].push(r);\n}\n\n// =========================\n// HELPER: inject ref vào text/url\n// =========================\nfunction injectRef(text, refcode) {\n  const s = String(text || '');\n  const ref = String(refcode || '');\n\n  if (!s || !ref) return s;\n\n  // Chỉ cần có ref= ở đâu cũng thay\n  if (!/ref=/i.test(s)) return s;\n\n  // Chỉ replace ref= đầu tiên\n  return s.replace(/ref=([^&#\"\\s>]*)/i, `ref=${ref}`);\n}\n\n// Trả về cả text mới + thông tin đoạn đã bị thay để còn chỉnh entity\nfunction injectRefWithMeta(text, refcode) {\n  const s = String(text || '');\n  const ref = String(refcode || '');\n\n  if (!s || !ref) {\n    return {\n      text: s,\n      changed: false,\n      start: -1,\n      oldLength: 0,\n      newLength: 0,\n      delta: 0\n    };\n  }\n\n  const match = s.match(/ref=([^&#\"\\s>]*)/i);\n  if (!match || match.index == null) {\n    return {\n      text: s,\n      changed: false,\n      start: -1,\n      oldLength: 0,\n      newLength: 0,\n      delta: 0\n    };\n  }\n\n  const oldPart = match[0];\n  const newPart = `ref=${ref}`;\n  const start = match.index;\n\n  const newText =\n    s.slice(0, start) +\n    newPart +\n    s.slice(start + oldPart.length);\n\n  return {\n    text: newText,\n    changed: oldPart !== newPart,\n    start,\n    oldLength: oldPart.length,\n    newLength: newPart.length,\n    delta: newPart.length - oldPart.length\n  };\n}\n\nfunction parseEntities(input) {\n  if (!input) return [];\n\n  if (Array.isArray(input)) return input;\n\n  if (typeof input === 'string') {\n    const trimmed = input.trim();\n    if (!trimmed) return [];\n\n    try {\n      const parsed = JSON.parse(trimmed);\n      return Array.isArray(parsed) ? parsed : [];\n    } catch (e) {\n      return [];\n    }\n  }\n\n  return [];\n}\n\n// =========================\n// HELPER: chỉnh offset/length entity khi text bị đổi độ dài\n// =========================\nfunction shiftEntitiesAfterReplace(inputEntities, replaceMeta) {\n  const entities = parseEntities(inputEntities);\n  if (!entities.length || !replaceMeta || !replaceMeta.changed || !replaceMeta.delta) {\n    return entities;\n  }\n\n  const start = replaceMeta.start;\n  const oldEnd = start + replaceMeta.oldLength;\n  const delta = replaceMeta.delta;\n\n  return entities.map(entity => {\n    if (!entity || typeof entity.offset !== 'number' || typeof entity.length !== 'number') {\n      return entity;\n    }\n\n    const eStart = entity.offset;\n    const eEnd = entity.offset + entity.length;\n\n    // entity nằm hoàn toàn trước đoạn replace\n    if (eEnd <= start) {\n      return { ...entity };\n    }\n\n    // entity nằm hoàn toàn sau đoạn replace\n    if (eStart >= oldEnd) {\n      return {\n        ...entity,\n        offset: entity.offset + delta\n      };\n    }\n\n    // entity có overlap với đoạn replace\n    // cần tăng length để vẫn phủ đúng phần text sau khi URL dài/ngắn đi\n    return {\n      ...entity,\n      length: entity.length + delta\n    };\n  });\n}\n\n// Áp logic refcode vào entity nào có type = text_link\nfunction injectRefToEntities(input, refcode) {\n  const entities = parseEntities(input);\n  if (!entities.length) return [];\n\n  return entities.map(entity => {\n    if (entity && entity.type === 'text_link' && entity.url) {\n      return {\n        ...entity,\n        url: injectRef(entity.url, refcode)\n      };\n    }\n    return { ...entity };\n  });\n}\n\n// ưu tiên caption_entities, nếu không có thì fallback entities\nfunction getBaseEntities(row) {\n  const captionEntities = parseEntities(row.caption_entities);\n  if (captionEntities.length) return captionEntities;\n\n  const entities = parseEntities(row.entities);\n  return entities.length ? entities : [];\n}\n\n// Nối CTA vào cuối nội dung\nfunction appendCTA(content, cta) {\n  const body = String(content || '').replace(/\\n+$/g, '').trim();\n  const tail = String(cta || '').replace(/^\\n+/g, '').trim();\n\n  if (!body && !tail) return '';\n  if (!body) return tail;\n  if (!tail) return body;\n\n  return `${body}\\n${tail}`;\n}\n\n// Lấy content + entities cuối cùng, đồng bộ offset/length sau khi chèn ref\nfunction getFinalContentAndEntities(row, refcode, cta) {\n  const rawCaption = String(row.caption || '');\n  const baseEntities = getBaseEntities(row);\n\n  // 1) sửa ref trong text hiển thị\n  const injected = injectRefWithMeta(rawCaption, refcode);\n\n  // 2) sửa offset/length entity theo độ lệch text\n  let finalEntities = shiftEntitiesAfterReplace(baseEntities, injected);\n\n  // 3) sửa riêng url của text_link entity\n  finalEntities = injectRefToEntities(finalEntities, refcode);\n\n  // 4) append CTA như logic cũ\n  const finalContent = appendCTA(injected.text, cta);\n\n  return {\n    content: finalContent,\n    entities: finalEntities\n  };\n}\n\nconst out = [];\n\nfor (const target of targetGroups) {\n  const target_chat_id = String(target[\"ID GROUP\"] || '').trim();\n  const refcode = String(target[\"REFCODE\"] || '').trim();\n  const community_name = target[\"TÊN CỘNG ĐỒNG\"] || '';\n  const ctaRaw = target[\"CTA\"] || '';\n  const cta = injectRef(ctaRaw, refcode);\n\n  if (!target_chat_id) continue;\n\n  for (const [groupKey, arr] of Object.entries(groups)) {\n    // sort để giữ đúng thứ tự album\n    arr.sort((a, b) => Number(a.message_id || 0) - Number(b.message_id || 0));\n\n    const rowIds = arr\n      .map(r => r.id || r.rowId || r._id)\n      .filter(Boolean);\n\n    // =========================\n    // CASE 1: SINGLE ITEM\n    // =========================\n    if (arr.length === 1) {\n      const r = arr[0];\n      const type = String(r.type || '').trim();\n      const file_id = r.file_id || null;\n\n      const { content: finalContent, entities: finalEntities } =\n        getFinalContentAndEntities(r, refcode, cta);\n\n      if (type === 'photo' && file_id) {\n        out.push({\n          json: {\n            target_chat_id,\n            refcode,\n            community_name,\n            group_key: `${groupKey}_${target_chat_id}`,\n            source_group_key: groupKey,\n            media_group_id: null,\n            send_method: 'sendPhoto',\n            payload: {\n              chat_id: target_chat_id,\n              photo: file_id,\n              ...(finalContent ? { caption: finalContent } : {}),\n              ...(finalEntities.length ? { caption_entities: finalEntities } : {})\n            },\n            rows_to_mark: rowIds\n          }\n        });\n        continue;\n      }\n\n      if (type === 'video' && file_id) {\n        out.push({\n          json: {\n            target_chat_id,\n            refcode,\n            community_name,\n            group_key: `${groupKey}_${target_chat_id}`,\n            source_group_key: groupKey,\n            media_group_id: null,\n            send_method: 'sendVideo',\n            payload: {\n              chat_id: target_chat_id,\n              video: file_id,\n              ...(finalContent ? { caption: finalContent } : {}),\n              ...(finalEntities.length ? { caption_entities: finalEntities } : {})\n            },\n            rows_to_mark: rowIds\n          }\n        });\n        continue;\n      }\n\n      if (type === 'document' && file_id) {\n        out.push({\n          json: {\n            target_chat_id,\n            refcode,\n            community_name,\n            group_key: `${groupKey}_${target_chat_id}`,\n            source_group_key: groupKey,\n            media_group_id: null,\n            send_method: 'sendDocument',\n            payload: {\n              chat_id: target_chat_id,\n              document: file_id,\n              ...(finalContent ? { caption: finalContent } : {}),\n              ...(finalEntities.length ? { caption_entities: finalEntities } : {})\n            },\n            rows_to_mark: rowIds\n          }\n        });\n        continue;\n      }\n\n      // type=text và mọi type khác không phải media\n      out.push({\n        json: {\n          target_chat_id,\n          refcode,\n          community_name,\n          group_key: `${groupKey}_${target_chat_id}`,\n          source_group_key: groupKey,\n          media_group_id: null,\n          send_method: 'sendMessage',\n          payload: {\n            chat_id: target_chat_id,\n            text: finalContent || cta || 'Unsupported message type',\n            ...(finalEntities.length ? { entities: finalEntities } : {})\n          },\n          rows_to_mark: rowIds\n        }\n      });\n\n      continue;\n    }\n\n    // =========================\n    // CASE 2: ALBUM\n    // =========================\n    const allowedAlbumTypes = ['photo', 'video'];\n\n    const media = arr\n      .filter(r => r.file_id && allowedAlbumTypes.includes(String(r.type || '').trim()))\n      .map((r, idx) => {\n        const item = {\n          type: String(r.type || '').trim(),\n          media: r.file_id\n        };\n\n        // chỉ item đầu có caption + CTA\n        if (idx === 0) {\n          const { content: finalContent, entities: finalEntities } =\n            getFinalContentAndEntities(r, refcode, cta);\n\n          if (finalContent) {\n            item.caption = finalContent;\n            if (finalEntities.length) {\n              item.caption_entities = finalEntities;\n            }\n          }\n        }\n\n        return item;\n      });\n\n    if (!media.length) continue;\n\n    out.push({\n      json: {\n        target_chat_id,\n        refcode,\n        community_name,\n        group_key: `${groupKey}_${target_chat_id}`,\n        source_group_key: groupKey,\n        media_group_id: arr[0].media_group_id || null,\n        send_method: 'sendMediaGroup',\n        payload: {\n          chat_id: target_chat_id,\n          media\n        },\n        rows_to_mark: rowIds\n      }\n    });\n  }\n}\n\nreturn out;"
+      },
+      "id": "068f532e-a2ff-4f23-a617-2f8197851427",
+      "name": "Ready Send",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2208,
+        480
+      ],
+      "executeOnce": false,
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Loop Over Items').item.json.payload.chat_id }}",
+        "text": "=Thân chào anh/chị Admin! Mình là Bot hỗ trợ gửi bài {{ $('Get Unprocessed Rows1').item.json.Topic }}. Nội dung bài đăng ở trên đã chèn sẵn link mời của team. Admin vui lòng đăng bài trong vòng 72 giờ và phản hồi lại link bài đăng (reply tin nhắn này) để hệ thống tự động ghi nhận nhé. Cảm ơn Admin đã hỗ trợ!",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1504,
+        160
+      ],
+      "id": "77d13259-dc31-455c-9c74-3e044c0e5709",
+      "name": "Send a text message",
+      "webhookId": "1e912bab-c8f7-4689-bd42-b672c1638050",
+      "credentials": {
+        "telegramApi": {
+          "id": "wWdqFKdIS5n1VUUz",
+          "name": "Huyền - KPI Post"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When clicking ‘Execute workflow’": [
+      {
+        "json": {},
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Get Unprocessed Rows1": {
+      "main": [
+        [
+          {
+            "node": "Switch3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet2": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet3": {
+      "main": [
+        [
+          {
+            "node": "Ready Send1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch3": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet3": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Ready Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get Unprocessed Rows1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Media",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        []
+      ]
+    },
+    "Send Media": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Delete row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete row(s)": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ready Send1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Media1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Media1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Delete row(s)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ready Send": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete row(s)1": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "52cd42aa-ad90-4000-8d8a-521d43cc7964",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f5fb4061ed08960c69361f3ac140c4b4a1277c94431dab6c42e4e1cf6a2153b5"
+  },
+  "id": "yP25BfvSKeEILeW8",
+  "tags": [
+    {
+      "updatedAt": "2026-01-12T14:04:59.580Z",
+      "createdAt": "2026-01-12T14:04:59.580Z",
+      "id": "Bupy82vAtJJSnG1d",
+      "name": "AI Challenge"
+    }
+  ]
+}

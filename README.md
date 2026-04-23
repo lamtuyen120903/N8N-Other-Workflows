@@ -64,6 +64,118 @@ Convert video/audio to Vietnamese speech.
 
 ---
 
+## Private-TG-Tracker (KPI & KOL Tracking)
+
+### 4. Bot Listen
+**File:** `Private-TG-Tracker/Bot Listen.json`
+
+Bot lắng nghe reply từ KOL khi gửi bài post về. Tracking KPI Post và Event Salary.
+
+**Flow:**
+1. Telegram Trigger nhận tin nhắn reply của KOL
+2. Kiểm tra tin nhắn reply có phải từ bot BingX không (KPI Post / Event Salary)
+3. Extract link bài đăng từ `link_preview_options.url` hoặc text
+4. Tính duration giữa BD gửi bài và KOL đăng bài
+5. Update KPI vào Google Sheets (sheet KPI_Post) và Lark Bitable
+6. Ghi nhận vào sheet Result_KPI_Post và Result_Event_Salary
+
+**Integrations:**
+- Telegram Bot (Huyền - KPI Post)
+- Google Sheets (KPI POST EVENT SALARY AUTO POST & REPORT)
+- Lark/Feishu Bitable (VFtYwvJsmivhoGkdd7glkd66gYd)
+
+---
+
+### 5. Bot group BD_Send
+**File:** `Private-TG-Tracker/Bot group BD_Send.json`
+
+Bot gửi bài KPI cho KOL và tracking khi KOL phản hồi link bài đăng.
+
+**Flow:**
+1. Get Unprocessed Rows từ DataTable (danh sách bài cần gửi)
+2. Switch phân loại: KPI Post vs Event Salary
+3. Append row vào sheet KPI_Post hoặc Event_Salary
+4. Get ref code từ sheet Ref_code
+5. Gửi media (photo/video/document) qua Telegram cho từng group
+6. Gửi tin nhắn reminder cho Admin group
+7. Delete row sau khi gửi xong
+8. Update status thành Done trong sheet
+
+**Features:**
+- Hỗ trợ album (media_group_id)
+- Inject refcode vào link
+- Xử lý entities (text_link URL update)
+- Append CTA vào cuối nội dung
+
+---
+
+## TG-MultiHub-Auto (Auto-Post Multi-Language)
+
+### 6. Đăng bài (Auto-Post Multi-Channel)
+**File:** `TG-MultiHub-Auto/Đăng bài.json`
+
+Đăng bài tự động đa channel với các ngôn ngữ khác nhau (Russian, Chinese, Indonesian, Vietnamese).
+
+**Flow:**
+1. Schedule Trigger chạy mỗi 2 phút
+2. Get all posts từ Supabase Post table
+3. Normalize message (photo/video/text/document)
+4. Kiểm tra image moderation qua Gemini (reject nếu có tiếng Việt hoặc BC Capital)
+5. Dịch nội dung sang 4 ngôn ngữ qua Information Extractor (Gemini)
+6. Get channel list từ Google Sheet (n8n-sheet)
+7. Loop qua từng ngôn ngữ, lấy channel tương ứng
+8. Gửi bài đăng đã dịch tới các channel Telegram
+9. Lưu lịch sử đăng vào Channel_Russian, Channel_Chinese, Channel_Indonesian, Channel_Vietnamese
+10. Delete post sau khi đăng xong
+
+**Languages:**
+- Russian
+- Simplified Chinese
+- Indonesian
+- Vietnamese
+
+**Tables:**
+- `Post` - Lưu bài gốc từ Telegram channel
+- `Channel_main` - Lưu thông tin bài đăng chính
+- `Channel_Russian`, `Channel_Chinese`, `Channel_Indonesian`, `Channel_Vietnamese` - Lưu bài đã đăng theo ngôn ngữ
+- `N8N_sheet` - Mapping channel theo ngôn ngữ (từ Google Sheets)
+
+---
+
+### 7. Đăng bài channel public
+**File:** `TG-MultiHub-Auto/Đăng bài channel public.json`
+
+Đăng bài được phân loại sang public channel @bullpacksignal.
+
+**Flow:**
+1. Trigger từ workflow khác (executeWorkflowTrigger)
+2. Kiểm tra chat_id thuộc danh sách cho phép
+3. Sentiment Analysis phân loại: TIN_TUC, CALL_KEO, TP, SL
+4. Dịch và viết lại nội dung bằng tiếng Anh chuyên nghiệp (Gemini)
+5. Gửi tới @bullpacksignal qua Telegram
+6. Lưu vào Other_Posts table
+
+---
+
+### 8. Phân tích (Analysis)
+**File:** `TG-MultiHub-Auto/Phân tích.json`
+
+Phân tích TP/SL và RR từ nội dung bài đăng.
+
+**Flow:**
+1. Schedule Trigger chạy mỗi 20 phút
+2. Get all posts từ Channel_main (Supabase)
+3. Filter những bài chưa có TP/Loss
+4. Information Extractor extract tp_status và rr_value
+5. Update TP/Loss vào Channel_main
+6. Get all posts để analyze tiếp
+7. Code in JavaScript chuẩn bị data theo ma_lenh
+8. Message a model (GPT-4.1-mini) phân tích final_rr và tp_hit
+9. Merge kết quả
+10. Create row vào Summary table
+
+---
+
 ## Setup
 
 Workflows include saved credentials in each JSON file:
@@ -74,5 +186,6 @@ Workflows include saved credentials in each JSON file:
 - `supabaseApi` - Supabase
 - `openAiApi` - OpenAI
 - `postgres` - PostgreSQL
+- `telegramApi` - Telegram bots
 
 Import into n8n and update credentials to match your instance.

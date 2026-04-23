@@ -1,0 +1,355 @@
+{
+  "name": "Đăng bài channel public",
+  "nodes": [
+    {
+      "parameters": {
+        "inputText": "={{ String($json.caption ?? $json.channel_post?.text ?? $json.text ?? \"NO_CONTENT\") }}",
+        "options": {
+          "categories": "TIN_TUC, CALL_KEO, TP, SL",
+          "systemPromptTemplate": "=**Vai trò:** Bạn là một công cụ phân loại dữ liệu chuyên sâu cho thị trường Crypto. Nhiệm vụ duy nhất của bạn là đọc nội dung bài đăng Telegram và xếp chúng vào đúng **1 trong 4 nhóm** duy nhất dưới đây.\n\n### 1. Quy tắc phân loại (Classification Rules)\n\n* **TIN TỨC (News):** Các bài đăng về sự kiện, cập nhật dự án, kinh tế vĩ mô, hoặc phân tích xu hướng mà **KHÔNG** đi kèm lệnh mua/bán hay thông báo kết quả lệnh, những câu nói bình thường\n* **CALL KÈO (Signal):** Các bài đăng đưa ra lệnh mới, bao gồm: Tên Token, Vị thế (Long/Short/Buy), và các mốc giá (Entry, TP, SL).\n* **CHỐT LỜI (TP - Take Profit):** Các bài đăng thông báo lệnh cũ đã thành công, khớp các mục tiêu giá tăng/giảm theo kỳ vọng, hoặc khoe lợi nhuận (PnL xanh).\n* **CẮT LỖ (SL - Stop Loss):** Các bài đăng thông báo lệnh đã chạm điểm cắt lỗ, bị thanh lý, hoặc yêu cầu thoát hàng gấp vì thị trường đi ngược dự đoán (PnL đỏ).\n\n---\n\n### 2. Cấu trúc phản hồi (Output Format)\n\n**Phân loại:** [TIN TỨC / CALL KÈO / TP / SL]\n\n**Chi tiết bóc tách:**\n\n* **Đối tượng:** (Tên Token hoặc Chủ đề tin tức)\n* **Trạng thái cụ thể:** * *Nếu là Call Kèo:* Liệt kê Entry/TP/SL.\n* *Nếu là TP:* Đã khớp Target mấy? Lợi nhuận bao nhiêu %? Bao nhiêu +R\n* *Nếu là SL:* Giá thoát là bao nhiêu?\n* *Nếu là Tin tức:* Tác động (Tốt/Xấu).\n\n\n* **Hành động:** (Ví dụ: Vào lệnh ngay / Dời SL / Đứng ngoài / Chốt 50%).\n\n---\n\n### 3. Bộ lọc từ khóa thông minh (Filtering Logic)\n\n* **Dấu hiệu nhận biết TP:** \"Target hit\", \"Done ✅\", \"Lúa về\", \"Rực rỡ\", \"Reach Target\", \"Chốt lời\".\n* **Dấu hiệu nhận biết SL:** \"Hit SL\", \"Cắt lỗ\", \"Out kèo\", \"Thanh lý\", \"Gãy\", \"❌\", \"Stopout\".\n* **Lưu ý quan trọng:** Nếu bài đăng vừa có phân tích tin tức vừa gọi kèo -> Ưu tiên chọn **CALL KÈO**. Nếu bài đăng vừa khoe TP vừa dời SL -> Ưu tiên chọn **TP**."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.sentimentAnalysis",
+      "typeVersion": 1.1,
+      "position": [
+        -320,
+        -336
+      ],
+      "id": "3f25c272-5a90-4b36-a81c-8bc72b388bef",
+      "name": "Sentiment Analysis",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -784,
+        -272
+      ],
+      "id": "a2fe343c-b4e4-468e-8bf1-f308e6dfea0e",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8debf7d1-09a1-4014-b4e2-053f5396ed90",
+              "leftValue": "={{ $json.chat_id }}",
+              "rightValue": "=-1002951554933",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "ab6b7317-b572-4b8f-8f68-21f3d10396bb",
+              "leftValue": "={{ $json.chat_id }}",
+              "rightValue": "=-1003144469596",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "db05b01b-f3fb-44a1-bc8f-a0b146b00135",
+              "leftValue": "={{ $json.chat_id }}",
+              "rightValue": "-1003406679889",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -560,
+        -272
+      ],
+      "id": "f630fb45-0eea-4e23-b44d-cb797feff3f8",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $json.caption||  $json.channel_post.text || \"\"}}"
+            }
+          ]
+        },
+        "options": {
+          "systemMessage": "=Role: Bạn là một chuyên gia dịch thuật và biên tập nội dung cao cấp trong thị trường Tiền điện tử (Crypto) và Giao dịch tài chính (Trading).\n\nTask: 1. Dịch nội dung người dùng cung cấp sang tiếng Anh.\n2. Viết lại (Refine/Rewrite) nội dung đó bằng văn phong chuyên nghiệp của một \"Native Crypto Trader\".\n3. Sử dụng chính xác các thuật ngữ chuyên ngành (ví dụ: liquidity, order block, FOMO, FUD, dApp, TVL, scaling solutions, price action, risk-reward ratio, DCA, v.v.).\n\nConstraints:\n\nChỉ đưa ra kết quả cuối cùng: Không giải thích, không \"Here is the translation\", không chào hỏi.\n\nChỉ output đoạn văn đã thay đổi: Nếu người dùng đưa vào một câu, chỉ trả về một câu tiếng Anh đã tối ưu.\n\nVăn phong: Chuyên nghiệp, sắc sảo, hợp ngữ cảnh thị trường (có thể tùy chỉnh giữa trang trọng hoặc \"degen\" tùy vào nội dung đầu vào nhưng luôn phải chuẩn kỹ thuật)."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        80,
+        -304
+      ],
+      "id": "79e04440-8203-40d1-a297-4615dcaf662d",
+      "name": "Message a model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "hLaCmEpDi18aodgc",
+          "name": "Google Gemini(PaLM) BingX"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "Other_Posts",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "Channel",
+              "fieldValue": "="
+            },
+            {
+              "fieldId": "ID_Post",
+              "fieldValue": "={{ $('When Executed by Another Workflow').item.json.message_id }}"
+            },
+            {
+              "fieldId": "Content",
+              "fieldValue": "={{ $json.caption }}"
+            },
+            {
+              "fieldId": "Photo",
+              "fieldValue": "=https://t.me/c/{{ $json.chat_id.toJsonString().replace(\"-100\",\"\") }}/{{ $json.message_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        96,
+        -448
+      ],
+      "id": "20983fff-0623-476b-bda0-4390a11ed226",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "p9w14KlrS3dXAE91",
+          "name": "Supabase Post"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const sourceItems = $('When Executed by Another Workflow').all();\nconst sourceRows = sourceItems.map(i => i.json);\n\nconst target_chat_id = '@bullpacksignal';\nconst sharedText = String($input.first()?.json?.content?.parts?.[0]?.text || '').trim();\n\nif (!sourceRows.length) return [];\n\nconst groups = {};\n\nfor (const r of sourceRows) {\n  const key = r.media_group_id\n    ? `mg_${r.media_group_id}`\n    : `single_${r.message_id}`;\n\n  if (!groups[key]) groups[key] = [];\n  groups[key].push(r);\n}\n\nconst out = [];\n\nfor (const [groupKey, arr] of Object.entries(groups)) {\n  arr.sort((a, b) => Number(a.message_id || 0) - Number(b.message_id || 0));\n\n  const rowIds = arr\n    .map(r => r.id || r.rowId || r._id)\n    .filter(Boolean);\n\n  if (arr.length === 1) {\n    const r = arr[0];\n    const type = String(r.type || \"\").trim();\n    const file_id = r.file_id || null;\n\n    if (type === \"photo\" && file_id) {\n      out.push({\n        json: {\n          group_key: `${groupKey}_${target_chat_id}`,\n          source_group_key: groupKey,\n          send_method: \"sendPhoto\",\n          payload: {\n            chat_id: target_chat_id,\n            photo: file_id,\n            ...(sharedText ? { caption: sharedText } : {})\n          },\n          rows_to_mark: rowIds\n        }\n      });\n      continue;\n    }\n\n    if (type === \"video\" && file_id) {\n      out.push({\n        json: {\n          group_key: `${groupKey}_${target_chat_id}`,\n          source_group_key: groupKey,\n          send_method: \"sendVideo\",\n          payload: {\n            chat_id: target_chat_id,\n            video: file_id,\n            ...(sharedText ? { caption: sharedText } : {})\n          },\n          rows_to_mark: rowIds\n        }\n      });\n      continue;\n    }\n\n    if (type === \"document\" && file_id) {\n      out.push({\n        json: {\n          group_key: `${groupKey}_${target_chat_id}`,\n          source_group_key: groupKey,\n          send_method: \"sendDocument\",\n          payload: {\n            chat_id: target_chat_id,\n            document: file_id,\n            ...(sharedText ? { caption: sharedText } : {})\n          },\n          rows_to_mark: rowIds\n        }\n      });\n      continue;\n    }\n\n    out.push({\n      json: {\n        group_key: `${groupKey}_${target_chat_id}`,\n        source_group_key: groupKey,\n        send_method: \"sendMessage\",\n        payload: {\n          chat_id: target_chat_id,\n          text: sharedText || \"Unsupported message type\"\n        },\n        rows_to_mark: rowIds\n      }\n    });\n\n    continue;\n  }\n\n  const media = arr\n    .filter(r => r.file_id && [\"photo\", \"video\"].includes(String(r.type || \"\").trim()))\n    .map((r, idx) => {\n      const item = {\n        type: String(r.type || \"\").trim(),\n        media: r.file_id\n      };\n\n      if (idx === 0 && sharedText) {\n        item.caption = sharedText;\n      }\n\n      return item;\n    });\n\n  if (!media.length) continue;\n\n  out.push({\n    json: {\n      group_key: `${groupKey}_${target_chat_id}`,\n      source_group_key: groupKey,\n      media_group_id: arr[0].media_group_id || null,\n      send_method: \"sendMediaGroup\",\n      payload: {\n        chat_id: target_chat_id,\n        media\n      },\n      rows_to_mark: rowIds\n    }\n  });\n}\n\nreturn out;"
+      },
+      "id": "ca3190ef-ed5e-42ee-9d75-d898d820f50a",
+      "name": "Ready Send1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        -304
+      ],
+      "executeOnce": false,
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot8540350418:AAGmNx3je74_ZfBsk4IAubVpDCjtSInOKUE/{{ $json.send_method }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.payload.toJsonString() }}",
+        "options": {}
+      },
+      "id": "f8604abc-cfc6-464c-a13b-13677d0db985",
+      "name": "Send Media1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        624,
+        -304
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        -128
+      ],
+      "id": "55377ae3-2711-4a8b-80cf-269df1796366",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "hLaCmEpDi18aodgc",
+          "name": "Google Gemini(PaLM) BingX"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "id": 126,
+          "created_at": "2026-04-13T19:37:48.158349+00:00",
+          "media_group_id": 14208760455922468,
+          "message_id": 1054,
+          "chat_id": "-1003406679889",
+          "file_id": "AgACAgUAAyEFAATLDc9RAAIEHmndD1DCQahGkMOAGqN3l6-p84f6AAJWEGsb7nvoVgynprEgfBWZAQADAgADdwADOwQ",
+          "caption": "Coin Tiếng Trung đã chỉ anh em \n\nNhiều ae chắc Bắt được chút ít và hỏi TP ở đâu ?\n\nTuỳ ae muốn ăn nhiêu ăn , con này entry ae fomo nên không đẹp lắm ! \n\nAi xúc thì ăn luôn cũng được , đợi dump có dấu hiệu múc tiếp \n\nChỉ bài rồi nhé đọc kĩ",
+          "type": "photo",
+          "entities": "[]",
+          "reply_id": null,
+          "Group_name": "BC Premium | Channel"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "id": 127,
+          "created_at": "2026-04-13T19:38:05.614643+00:00",
+          "media_group_id": 14208760455922468,
+          "message_id": 1055,
+          "chat_id": "-1003406679889",
+          "file_id": "AgACAgUAAyEFAATLDc9RAAIEH2ndD1Dg7V2LBom8c6Ek6nS3dILQAAJXEGsb7nvoVpWHnPXhfOhhAQADAgADdwADOwQ",
+          "caption": "",
+          "type": "photo",
+          "entities": "[]",
+          "reply_id": null,
+          "Group_name": "BC Premium | Channel"
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Sentiment Analysis": {
+      "main": [
+        [
+          {
+            "node": "Message a model2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "Message a model2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Sentiment Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model2": {
+      "main": [
+        [
+          {
+            "node": "Ready Send1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ready Send1": {
+      "main": [
+        [
+          {
+            "node": "Send Media1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Sentiment Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f84601aa-c6f5-41e2-9925-40340c30cf07",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f5fb4061ed08960c69361f3ac140c4b4a1277c94431dab6c42e4e1cf6a2153b5"
+  },
+  "id": "89XquYjObQsmv0bm",
+  "tags": []
+}
