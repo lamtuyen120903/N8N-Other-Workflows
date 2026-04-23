@@ -1,0 +1,179 @@
+{
+  "name": "translate video thành speech tiếng việt",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "speech",
+        "voice": {
+          "__rl": true,
+          "value": "EXAVITQu4vr4xnSDxMaL",
+          "mode": "list",
+          "cachedResultName": "Sarah"
+        },
+        "text": "={{ $json.content.parts[0].text }}",
+        "additionalOptions": {
+          "model": {
+            "__rl": true,
+            "value": "eleven_v3",
+            "mode": "list",
+            "cachedResultName": "Eleven v3 (alpha)"
+          },
+          "languageCode": "vi",
+          "voiceSettings": "{\n  \"stability\": 1,\n  \"similarity_boost\": 1,\n  \"style\": 0,\n  \"use_speaker_boost\": true,\n  \"speed\": 1\n}"
+        },
+        "requestOptions": {}
+      },
+      "type": "@elevenlabs/n8n-nodes-elevenlabs.elevenLabs",
+      "typeVersion": 1,
+      "position": [
+        768,
+        0
+      ],
+      "id": "0ee27f22-16e8-45be-b31f-a3a8889bcf75",
+      "name": "Convert text to speech",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1_itxu_l9zj4Q8bPf-LFmwT5Jomi2l0k6",
+          "mode": "list",
+          "cachedResultName": "Download (1).mp4",
+          "cachedResultUrl": "https://drive.google.com/file/d/1_itxu_l9zj4Q8bPf-LFmwT5Jomi2l0k6/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "15b35450-75ac-47fd-856c-f7c8034d33c8",
+      "name": "Download file",
+      "credentials": {}
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        0
+      ],
+      "id": "09e91a94-5769-462c-ae12-40cb9e29d0ca",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "resource": "speech",
+        "operation": "speechToText",
+        "additionalOptions": {
+          "languageCode": "vi"
+        },
+        "requestOptions": {}
+      },
+      "type": "@elevenlabs/n8n-nodes-elevenlabs.elevenLabs",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "d901551a-7e18-4ce6-9ef8-6bedd3515680",
+      "name": "Transcribe audio or video",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=dịch ra tiếng việt:  {{ $json.text }}\n\nchỉ trả lại nội dung đã dịch không thêm bất cứ nội dùng gì khác"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "c0004dc4-8b60-4358-9d22-ff60d7ad2894",
+      "name": "Message a model",
+      "credentials": {}
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Convert text to speech": {
+      "main": [
+        []
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Transcribe audio or video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe audio or video": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Convert text to speech",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "23f32025-926f-4ef7-b78e-f9ce04683ffc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "df75f6d19da9532b87ea5a84541b4ccc1d0dd5baf896242962b0dfcbc492bcf4"
+  },
+  "id": "F0Zg6fsOOWoNqpMS",
+  "tags": []
+}
